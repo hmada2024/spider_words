@@ -38,37 +38,3 @@
 ## الرخصة
 
 هذا المشروع مرخص تحت رخصة MIT.
-
-lib/
-├── main.dart
-├── models/
-│   ├── nouns_model.dart
-│   ├── adjective_model.dart
-│   └── compound_word_model.dart
-├── data/
-│   └── database_helper.dart
-├── widgets/
-│   ├── custom_app_bar.dart
-│   ├── custom_gradient.dart
-│   ├── custom_home_button.dart
-│   ├── noun_item.dart
-│   ├── adjective_card.dart
-│   ├── compound_word_card.dart
-│   ├── matching_game_content.dart
-│   └── matching_game_logic.dart
-├── pages/
-│   ├── home_page.dart
-│   ├── nouns_page.dart
-│   ├── adjectives_page.dart
-│   ├── compound_words_page.dart
-│   └── matching_game_page.dart
-├── utils/
-│   ├── app_constants.dart
-│   ├── constants.dart
-│   └── screen_utils.dart
-assets/
-├── nouns.db
-├── sounds/
-│   ├── correct.mp3
-│   └── wrong.mp3
-└── icon.ico
