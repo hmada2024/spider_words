@@ -7,10 +7,12 @@ import 'package:spider_words/pages/home_page.dart';
 import 'package:spider_words/pages/nouns_page.dart';
 import 'package:spider_words/pages/matching_game_page.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 void main() {
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

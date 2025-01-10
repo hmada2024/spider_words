@@ -1,60 +1,94 @@
 // lib/pages/matching_game_page.dart
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/data/database_helper.dart';
+import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/matching_game_content.dart';
 import 'package:spider_words/widgets/matching_game_logic.dart';
 
-class MatchingGamePage extends StatefulWidget {
+// تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
+final nounsForGameProvider =
+    FutureProvider.autoDispose<List<Noun>>((ref) async {
+  final dbHelper = DatabaseHelper();
+  return dbHelper.getNounsForMatchingGame();
+});
+
+// تعريف Provider لـ MatchingGameLogic. نستخدم ChangeNotifierProvider لأنه MatchingGameLogic يرث من ChangeNotifier
+final matchingGameLogicProvider =
+    ChangeNotifierProvider.autoDispose<MatchingGameLogic>((ref) {
+  final nouns = ref.watch(nounsForGameProvider).maybeWhen(
+        data: (data) => data,
+        orElse: () => [],
+      ) as List<Noun>;
+  return MatchingGameLogic(initialNouns: nouns);
+});
+
+// تغيير StatelessWidget إلى ConsumerWidget لاستخدام Riverpod
+class MatchingGamePage extends ConsumerWidget {
   static const routeName = '/matching_game';
 
   const MatchingGamePage({super.key});
 
   @override
-  State<MatchingGamePage> createState() => _MatchingGamePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // قراءة حالة تحميل الأسماء
+    final nounsState = ref.watch(nounsForGameProvider);
 
-class _MatchingGamePageState extends State<MatchingGamePage> {
-  late MatchingGameLogic _gameLogic;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadNouns();
+    return Scaffold(
+      appBar: const CustomAppBar(
+        title: 'Matching Game',
+      ),
+      body: CustomGradient(
+        child: nounsState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(child: Text('Error: $error')),
+          data: (nouns) {
+            return MatchingGameContent(
+              currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
+              imageOptions: ref.watch(matchingGameLogicProvider).imageOptions,
+              isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,
+              isWrong: ref.watch(matchingGameLogicProvider).isWrong,
+              score: ref.watch(matchingGameLogicProvider).score,
+              answeredQuestions:
+                  ref.watch(matchingGameLogicProvider).answeredQuestions,
+              totalQuestions:
+                  ref.watch(matchingGameLogicProvider).totalQuestions,
+              onOptionSelected: (noun) =>
+                  ref.read(matchingGameLogicProvider).checkAnswer(noun),
+              playCurrentNounAudio: () =>
+                  ref.read(matchingGameLogicProvider).playCurrentNounAudio(),
+              isInteractionDisabled:
+                  ref.watch(matchingGameLogicProvider).isInteractionDisabled,
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showGameOverDialog(context, ref),
+        tooltip: 'Show Game Over',
+        child: const Icon(Icons.flag),
+      ),
+    );
   }
 
-  Future<void> _loadNouns() async {
-    final nouns = await DatabaseHelper().getNounsForMatchingGame();
-    setState(() {
-      _gameLogic = MatchingGameLogic(initialNouns: nouns);
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    _gameLogic.dispose();
-    super.dispose();
-  }
-
-  void _showGameOverDialog() {
+  // دالة عرض الـ Game Over Dialog. الآن تستقبل BuildContext و WidgetRef
+  void _showGameOverDialog(BuildContext context, WidgetRef ref) {
+    final gameLogic = ref.read(matchingGameLogicProvider);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Game Over!'),
           content: Text(
-            'Your final score is: ${_gameLogic.score} out of ${_gameLogic.totalQuestions}',
+            'Your final score is: ${gameLogic.score} out of ${gameLogic.totalQuestions}',
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _resetGame();
+                ref.read(matchingGameLogicProvider).resetGame();
               },
               child: const Text('Play Again'),
             ),
@@ -68,51 +102,6 @@ class _MatchingGamePageState extends State<MatchingGamePage> {
           ],
         );
       },
-    );
-  }
-
-  void _resetGame() {
-    setState(() {
-      _isLoading = true;
-    });
-    _loadNouns();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Matching Game',
-      ),
-      body: CustomGradient(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ChangeNotifierProvider<MatchingGameLogic>.value(
-                value: _gameLogic,
-                child: Center(
-                  child: Consumer<MatchingGameLogic>(
-                    builder: (context, gameLogic, child) => MatchingGameContent(
-                      currentNoun: gameLogic.currentNoun,
-                      imageOptions: gameLogic.imageOptions,
-                      isCorrect: gameLogic.isCorrect,
-                      isWrong: gameLogic.isWrong,
-                      score: gameLogic.score,
-                      answeredQuestions: gameLogic.answeredQuestions,
-                      totalQuestions: gameLogic.totalQuestions,
-                      onOptionSelected: gameLogic.checkAnswer,
-                      playCurrentNounAudio: gameLogic.playCurrentNounAudio,
-                      isInteractionDisabled:
-                          gameLogic.isInteractionDisabled, // تمرير الخاصية هنا
-                    ),
-                  ),
-                ),
-              ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showGameOverDialog,
-        tooltip: 'Show Game Over',
-        child: const Icon(Icons.flag),
-      ),
     );
   }
 }

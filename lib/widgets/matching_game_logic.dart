@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
 
-class MatchingGameLogic with ChangeNotifier {
+// لم نعد بحاجة إلى الـ with ChangeNotifier هنا لأن ChangeNotifierProvider سيتولى الأمر
+class MatchingGameLogic extends ChangeNotifier {
   final List<Noun> initialNouns;
   List<Noun> _nouns = [];
   Noun? _currentNoun;
@@ -28,7 +29,12 @@ class MatchingGameLogic with ChangeNotifier {
   bool get isWrong => _isWrong;
   bool get isInteractionDisabled => _isInteractionDisabled;
 
+  // سيتم استدعاء هذا الـ Constructor عند إنشاء الـ Provider
   MatchingGameLogic({required this.initialNouns}) {
+    _startNewGame();
+  }
+
+  void _startNewGame() {
     _nouns = List<Noun>.from(initialNouns)..shuffle();
     _nextQuestion();
   }
@@ -37,16 +43,14 @@ class MatchingGameLogic with ChangeNotifier {
     if (_nouns.isNotEmpty) {
       _isCorrect = false;
       _isWrong = false;
-      _isInteractionDisabled = false; // Enable interaction for the new question
+      _isInteractionDisabled = false;
       _currentNoun = _nouns.removeAt(0);
       _imageOptions = _generateImageOptions(_currentNoun!);
       _imageOptions.shuffle();
       playCurrentNounAudio();
-      if (!disposed) {
-        notifyListeners(); // Ensure it's not disposed before notifying listeners
-      }
+      notifyListeners();
     } else {
-      // Game Over - يتم التعامل معها في واجهة المستخدم
+      // Game Over - سيتم التعامل معها في واجهة المستخدم
     }
   }
 
@@ -66,7 +70,6 @@ class MatchingGameLogic with ChangeNotifier {
         break;
       }
     }
-    // التأكد من وجود 4 خيارات حتى لو لم تكن فريدة تمامًا
     while (options.length < 4 && initialNouns.isNotEmpty) {
       final randomNoun = initialNouns[Random().nextInt(initialNouns.length)];
       if (!options.any((option) => option.id == randomNoun.id)) {
@@ -94,7 +97,7 @@ class MatchingGameLogic with ChangeNotifier {
 
   Future<void> playSound(String assetPath) async {
     try {
-      await _audioPlayer.stop(); // Stop any currently playing sound
+      await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource(assetPath.replaceAll('assets/', '')));
     } catch (e) {
       debugPrint('Error playing sound effect: $e');
@@ -103,24 +106,20 @@ class MatchingGameLogic with ChangeNotifier {
 
   Future<void> checkAnswer(Noun selectedNoun) async {
     _answeredQuestions++;
-    _isInteractionDisabled = true; // Disable interaction immediately
-    // notifyListeners(); // نقل هذا السطر
+    _isInteractionDisabled = true;
+    notifyListeners(); // إعلام الواجهة بتعطيل التفاعل
 
     if (_currentNoun != null && selectedNoun.id == _currentNoun!.id) {
       _isCorrect = true;
-      _score++; // تحديث النتيجة هنا
-      if (!disposed) {
-        notifyListeners(); // ثم إعلام الواجهة بالتغيير
-      }
-      await playSound(AppConstants.correctAnswerSound); // Play correct sound
+      _score++;
+      notifyListeners(); // إعلام الواجهة بالإجابة الصحيحة والنتيجة الجديدة
+      await playSound(AppConstants.correctAnswerSound);
       await Future.delayed(const Duration(seconds: 2));
       _nextQuestion();
     } else {
       _isWrong = true;
-      if (!disposed) {
-        notifyListeners(); // Update UI to show the wrong answer
-      }
-      await playSound(AppConstants.wrongAnswerSound); // Play wrong sound
+      notifyListeners(); // إعلام الواجهة بالإجابة الخاطئة
+      await playSound(AppConstants.wrongAnswerSound);
       await Future.delayed(const Duration(seconds: 2));
       _nextQuestion();
     }
@@ -129,18 +128,12 @@ class MatchingGameLogic with ChangeNotifier {
   void resetGame() {
     _score = 0;
     _answeredQuestions = 0;
-    _nouns = List<Noun>.from(initialNouns)..shuffle();
-    _nextQuestion();
-    if (!disposed) {
-      notifyListeners();
-    }
+    _startNewGame(); // إعادة بدء اللعبة
+    notifyListeners();
   }
-
-  bool disposed = false; // Track if this class has been disposed
 
   @override
   void dispose() {
-    disposed = true; // Mark as disposed before calling super.dispose()
     _audioPlayer.dispose();
     super.dispose();
   }
