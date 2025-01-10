@@ -5,7 +5,7 @@ import 'package:spider_words/pages/adjectives_page.dart';
 import 'package:spider_words/pages/compound_words_page.dart';
 import 'package:spider_words/pages/home_page.dart';
 import 'package:spider_words/pages/nouns_page.dart';
-import 'package:spider_words/pages/matching_game_page.dart'; // استيراد صفحة لعبة المطابقة
+import 'package:spider_words/pages/matching_game_page.dart';
 
 void main() {
   sqfliteFfiInit();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Vocabulary Builder',
+      title: 'Spider Words',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         appBarTheme: const AppBarTheme(

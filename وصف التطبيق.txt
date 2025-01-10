@@ -1,107 +1,73 @@
 lib/
+├── main.dart
+├── models/
+│   ├── nouns_model.dart
+│   ├── adjective_model.dart
+│   └── compound_word_model.dart
 ├── data/
 │   └── database_helper.dart
-├── logic/
+├── widgets/
+│   ├── custom_app_bar.dart
+│   ├── custom_gradient.dart
+│   ├── custom_home_button.dart
+│   ├── noun_item.dart
+│   ├── adjective_card.dart
+│   ├── compound_word_card.dart
+│   ├── matching_game_content.dart
 │   └── matching_game_logic.dart
-├── models/
-│   ├── adjective_model.dart
-│   ├── compound_word_model.dart
-│   └── nouns_model.dart
 ├── pages/
+│   ├── home_page.dart
+│   ├── nouns_page.dart
 │   ├── adjectives_page.dart
 │   ├── compound_words_page.dart
-│   ├── home_page.dart
-│   ├── matching_game_page.dart
-│   └── nouns_page.dart
+│   └── matching_game_page.dart
 ├── utils/
 │   ├── app_constants.dart
 │   ├── constants.dart
 │   └── screen_utils.dart
-├── widgets/
-│   ├── adjective_card.dart
-│   ├── adjective_list.dart
-│   ├── compound_word_card.dart
-│   ├── custom_app_bar.dart
-│   ├── custom_gradient.dart
-│   ├── custom_home_button.dart
-│   ├── matching_game_content.dart
-│   ├── noun_item.dart
-│   └── noun_list.dart
-└── main.dart
-فكرة التطبيق:
+assets/
+├── nouns.db
+├── sounds/
+│   ├── correct.mp3
+│   └── wrong.mp3
+└── icon.ico
 
-التطبيق هو أداة تعليمية لمساعدة المستخدمين على تحسين مفرداتهم اللغوية في اللغة الإنجليزية. يركز التطبيق على ثلاثة جوانب رئيسية للمفردات: الصفات، الأسماء، والكلمات المجمعة. يوفر التطبيق طريقة منظمة وممتعة لتعلم هذه الكلمات من خلال عرضها في بطاقات تفاعلية مصحوبة بالصور والصوت. كما يهدف التطبيق إلى تعزيز عملية التعلم من خلال إضافة اختبارات وألعاب تفاعلية.
+# هيكل التطبيق
 
-شرح دور كل ملف:
+## 1. **النقطة الرئيسية (main.dart)**
+   - **الوظيفة:** نقطة الدخول الرئيسية للتطبيق، يتم فيها تهيئة قاعدة البيانات وتشغيل التطبيق.
 
-constants.txt (utils/constants.txt):
+## 2. **نماذج البيانات (models/)**
+   - **nouns_model.dart:** نموذج بيانات للأسماء.
+   - **adjective_model.dart:** نموذج بيانات للصفات.
+   - **compound_word_model.dart:** نموذج بيانات للكلمات المركبة.
 
-يحتوي على تعريفات للثوابت والمتغيرات العامة المستخدمة في جميع أنحاء التطبيق، مثل اسم قاعدة البيانات وأسماء الجداول والأعمدة. يساعد في تنظيم الكود وتجنب تكرار القيم.
+## 3. **إدارة قاعدة البيانات (data/)**
+   - **database_helper.dart:** مساعد قاعدة البيانات لإدارة عمليات استرجاع البيانات.
 
-compound_word_model.txt (models/compound_word_model.dart):
+## 4. **الواجهات المخصصة (widgets/)**
+   - **custom_app_bar.dart:** شريط عنوان مخصص للتطبيق.
+   - **custom_gradient.dart:** خلفية متدرجة مخصصة للصفحات.
+   - **custom_home_button.dart:** زر مخصص للصفحة الرئيسية.
+   - **noun_item.dart:** عنصر واجهة لعرض الأسماء.
+   - **adjective_card.dart:** بطاقة لعرض الصفات.
+   - **compound_word_card.dart:** بطاقة لعرض الكلمات المركبة.
+   - **matching_game_content.dart:** واجهة لعبة المطابقة.
+   - **matching_game_logic.dart:** منطق لعبة المطابقة.
 
-يعرف نموذج بيانات الكلمة المجمعة. يحتوي على متغيرات تمثل خصائص الكلمة المجمعة مثل id، main، part1، part2، example، والمواد الصوتية.
+## 5. **الصفحات (pages/)**
+   - **home_page.dart:** الصفحة الرئيسية التي تحتوي على أزرار للانتقال إلى الصفحات الأخرى.
+   - **nouns_page.dart:** صفحة عرض الأسماء مع إمكانية التصفية حسب الفئة.
+   - **adjectives_page.dart:** صفحة عرض الصفات مع الأمثلة.
+   - **compound_words_page.dart:** صفحة عرض الكلمات المركبة مع الأمثلة.
+   - **matching_game_page.dart:** صفحة لعبة المطابقة.
 
-custom_app_bar.txt (widgets/custom_app_bar.dart):
+## 6. **الأدوات (utils/)**
+   - **app_constants.dart:** ثوابت التطبيق مثل الألوان والأصوات.
+   - **constants.dart:** ثوابت قاعدة البيانات مثل أسماء الجداول والأعمدة.
+   - **screen_utils.dart:** أدوات لقياس أبعاد الشاشة.
 
-يعرف ودجت مخصص لشريط التطبيق العلوي (AppBar) بتصميم موحد يمكن استخدامه في جميع الصفحات. يوفر إمكانية تخصيص العنوان وإضافة أزرار (actions).
-
-compound_words_page.txt (pages/compound_words_page.dart):
-
-الشاشة التي تعرض قائمة الكلمات المجمعة. تقوم بجلب البيانات من قاعدة البيانات وعرضها في بطاقات باستخدام ودجت CompoundWordCard.
-
-custom_gradient.txt (widgets/custom_gradient.dart):
-
-يعرف ودجت لتطبيق تدرج لوني مخصص كخلفية للصفحات. يساعد في تحقيق تصميم مرئي جذاب وموحد.
-
-custom_home_button.txt (widgets/custom_home_button.dart):
-
-يعرف ودجت لزر مخصص يستخدم في الصفحة الرئيسية للتنقل إلى أقسام التطبيق المختلفة (الصفات، الأسماء، الكلمات المجمعة).
-
-database_helper.txt (data/database_helper.dart):
-
-مسؤول عن إدارة الاتصال بقاعدة البيانات SQLite وجلب البيانات منها. يحتوي على وظائف لاسترجاع الصفات، الأسماء، والكلمات المجمعة.
-
-home_page.txt (pages/home_page.dart):
-
-الشاشة الرئيسية للتطبيق التي تعرض أزرار التنقل إلى الأقسام الرئيسية.
-
-main.txt (main.dart):
-
-نقطة البداية لتشغيل التطبيق. يقوم بتهيئة التطبيق وتحديد الشاشة الرئيسية وتحديد مسارات التنقل بين الصفحات.
-
-noun_item.txt (widgets/noun_item.dart):
-
-يعرف ودجت لعرض بطاقة اسم واحد مع الصورة والصوت. يستخدم في قائمة الأسماء.
-
-noun_list.txt (widgets/noun_list.dart):
-
-يعرض قائمة الأسماء التي تم جلبها من قاعدة البيانات باستخدام ودجت AnimatedNounCard.
-
-nouns_model.txt (models/nouns_model.dart):
-
-يعرف نموذج بيانات الاسم. يحتوي على متغيرات تمثل خصائص الاسم مثل id، name، image، audio، و category.
-
-nouns_page.txt (pages/nouns_page.dart):
-
-الشاشة التي تعرض قائمة الأسماء. تسمح للمستخدم بتصفح الأسماء حسب الفئة.
-
-adjective_card.txt (widgets/adjective_card.dart):
-
-يعرف ودجت لعرض بطاقة صفة واحدة مع أمثلة عليها والمواد الصوتية.
-
-adjective_model.txt (models/adjective_model.dart):
-
-يعرف نموذج بيانات الصفة. يحتوي على متغيرات تمثل خصائص الصفة وأمثلة عليها والمواد الصوتية.
-
-adjective_list.txt (widgets/adjective_list.dart):
-
-يعرض قائمة الصفات التي تم جلبها من قاعدة البيانات باستخدام ودجت AnimatedAdjectiveCard.
-
-adjectives_page.txt (pages/adjectives_page.dart):
-
-الشاشة التي تعرض قائمة الصفات.
-
-compound_word_card.txt (widgets/compound_word_card.dart):
-
-يعرف ودجت لعرض بطاقة كلمة مجمعة واحدة مع المثال والمواد الصوتية.
+## 7. **الأصول (assets/)**
+   - **nouns.db:** ملف قاعدة البيانات.
+   - **sounds/:** ملفات الأصوات المستخدمة في التطبيق.
+   - **icon.ico:** أيقونة التطبيق.
