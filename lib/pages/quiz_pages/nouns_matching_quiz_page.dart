@@ -36,7 +36,7 @@ final audioImageMatchingQuizLogicProvider =
 });
 
 class NounsMatchingQuizPage extends ConsumerWidget {
-  static const routeName = '/audio_image_matching_game';
+  static const routeName = '/nouns_matching_quiz';
 
   const NounsMatchingQuizPage({super.key});
 
@@ -104,8 +104,8 @@ class NounsMatchingQuizPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showGameOverDialog(context, ref),
-        tooltip: 'Show Game Over',
+        onPressed: () => _showQuizOverDialog(context, ref),
+        tooltip: 'Show Quiz Over',
         child: const Icon(Icons.flag),
       ),
     );
@@ -162,15 +162,15 @@ class NounsMatchingQuizPage extends ConsumerWidget {
     );
   }
 
-  void _showGameOverDialog(BuildContext context, WidgetRef ref) {
-    final gameLogic = ref.read(audioImageMatchingQuizLogicProvider);
+  void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
+    final quizLogic = ref.read(audioImageMatchingQuizLogicProvider);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Game Over!'),
+          title: const Text('Quiz Over!'),
           content: Text(
-            'Your final score is: ${gameLogic.score} out of ${gameLogic.totalQuestions}',
+            'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
           ),
           actions: <Widget>[
             TextButton(

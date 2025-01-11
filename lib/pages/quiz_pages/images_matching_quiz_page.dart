@@ -23,7 +23,7 @@ final nounsForQuizProvider = FutureProvider.autoDispose
 // تعريف Provider للفئة المختارة في لعبة المطابقة
 final selectedQuizCategoryProvider = StateProvider<String>((ref) => 'all');
 
-// تعريف Provider لـ MatchingGameLogic
+// تعريف Provider لـ MatchingQuizLogic
 final matchingQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<ImagesMatchingQuizLogic>((ref) {
   final selectedCategory = ref.watch(selectedQuizCategoryProvider);
@@ -36,7 +36,7 @@ final matchingQuizLogicProvider =
 });
 
 class ImagesMatchingQuizPage extends ConsumerWidget {
-  static const routeName = '/matching_game';
+  static const routeName = '/images_matching_quiz';
 
   const ImagesMatchingQuizPage({super.key});
 
@@ -157,7 +157,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Game Over!'),
+          title: const Text('Quiz Over!'),
           content: Text(
             'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
           ),
