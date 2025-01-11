@@ -110,15 +110,15 @@ class MatchingGameLogic extends ChangeNotifier {
     if (_currentNoun != null && selectedNoun.id == _currentNoun!.id) {
       _isCorrect = true;
       _score++;
+      playSound(AppConstants.correctAnswerSound); // Play sound immediately
       notifyListeners(); // إعلام الواجهة بالإجابة الصحيحة والنتيجة الجديدة
-      await playSound(AppConstants.correctAnswerSound);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1)); // Reduced delay
       _nextQuestion();
     } else {
       _isWrong = true;
+      playSound(AppConstants.wrongAnswerSound); // Play sound immediately
       notifyListeners(); // إعلام الواجهة بالإجابة الخاطئة
-      await playSound(AppConstants.wrongAnswerSound);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(milliseconds: 1600)); // Reduced delay
       _nextQuestion();
     }
   }
@@ -128,10 +128,5 @@ class MatchingGameLogic extends ChangeNotifier {
     _answeredQuestions = 0;
     _startNewGame(); // إعادة بدء اللعبة
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

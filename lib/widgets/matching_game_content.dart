@@ -104,7 +104,9 @@ class MatchingGameContent extends ConsumerWidget {
                 backgroundColor: Colors.blue.shade100,
                 child: IconButton(
                   icon: Icon(Icons.volume_up, size: audioIconSize),
-                  onPressed: () => playAudio(currentNoun?.audio),
+                  onPressed: isInteractionDisabled
+                      ? null
+                      : () => playAudio(currentNoun?.audio),
                 ),
               ),
             ),

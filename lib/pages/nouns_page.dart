@@ -1,15 +1,25 @@
 // pages/nouns_page.dart
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/noun_list.dart';
-import '../data/database_helper.dart';
+import '../main.dart';
 
-class NounsPage extends StatefulWidget {
+// Provider to fetch nouns by category
+final nounsByCategoryProvider =
+    FutureProvider.family<List<Noun>, String>((ref, category) async {
+  final dbHelper = ref.read(databaseHelperProvider);
+  return dbHelper.getNounsByCategory(category);
+});
+
+// Provider for the selected category
+final selectedCategoryProvider = StateProvider<String?>((ref) => null);
+
+class NounsPage extends ConsumerStatefulWidget {
   static const routeName = '/nouns';
 
   const NounsPage({super.key});
@@ -18,33 +28,25 @@ class NounsPage extends StatefulWidget {
   NounsPageState createState() => NounsPageState();
 }
 
-class NounsPageState extends State<NounsPage> {
-  Future<List<Noun>>? _nounsFuture;
+class NounsPageState extends ConsumerState<NounsPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  String? _selectedCategory;
-  late Future<List<String>> _categoriesFuture;
 
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = _loadCategories();
-    _categoriesFuture.then((categories) {
-      if (categories.isNotEmpty) {
-        setState(() {
-          _selectedCategory = categories.first;
-          _nounsFuture = _fetchNounsByCategory(_selectedCategory!);
-        });
-      }
-    });
+    _loadInitialCategory();
   }
 
-  Future<List<String>> _loadCategories() async {
-    final nouns = await DatabaseHelper().getNouns();
+  Future<void> _loadInitialCategory() async {
+    final categories = await _fetchCategories();
+    if (categories.isNotEmpty) {
+      ref.read(selectedCategoryProvider.notifier).state = categories.first;
+    }
+  }
+
+  Future<List<String>> _fetchCategories() async {
+    final nouns = await ref.read(databaseHelperProvider).getNouns();
     return nouns.map((noun) => noun.category).toSet().toList();
-  }
-
-  Future<List<Noun>> _fetchNounsByCategory(String category) async {
-    return await DatabaseHelper().getNounsByCategory(category);
   }
 
   @override
@@ -55,6 +57,10 @@ class NounsPageState extends State<NounsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+    final nounsAsyncValue =
+        ref.watch(nounsByCategoryProvider(selectedCategory ?? ''));
+
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Nouns',
@@ -65,13 +71,21 @@ class NounsPageState extends State<NounsPage> {
       body: CustomGradient(
         child: RefreshIndicator(
           onRefresh: () async {
-            if (_selectedCategory != null) {
-              setState(() {
-                _nounsFuture = _fetchNounsByCategory(_selectedCategory!);
-              });
+            // Trigger a refetch by invalidating the provider
+            if (selectedCategory != null) {
+              ref.invalidate(nounsByCategoryProvider(selectedCategory));
+              await ref.read(nounsByCategoryProvider(selectedCategory).future);
             }
           },
-          child: NounList(nounsFuture: _nounsFuture, audioPlayer: _audioPlayer),
+          child: nounsAsyncValue.when(
+            loading: () => const Center(
+                child: CircularProgressIndicator(color: Colors.white)),
+            error: (error, stackTrace) => Center(
+                child: Text('Error: $error',
+                    style: const TextStyle(color: Colors.white))),
+            data: (nouns) => NounList(
+                nounsFuture: Future.value(nouns), audioPlayer: _audioPlayer),
+          ),
         ),
       ),
     );
@@ -82,7 +96,7 @@ class NounsPageState extends State<NounsPage> {
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 
     return FutureBuilder<List<String>>(
-      future: _categoriesFuture,
+      future: _fetchCategories(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -92,23 +106,17 @@ class NounsPageState extends State<NounsPage> {
           return const Text('No categories available.');
         } else {
           return Padding(
-            padding: const EdgeInsets.only(right: 8.0), // هامش أيمن
+            padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
-              value: _selectedCategory,
-              underline: Container(), // إزالة الخط السفلي
+              value: ref.watch(selectedCategoryProvider),
+              underline: Container(),
               icon: Icon(Icons.arrow_drop_down,
                   color: Colors.white, size: dropdownIconSize),
-              dropdownColor: Colors.blueAccent, // لون خلفية القائمة
+              dropdownColor: Colors.blueAccent,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold), // نمط نص القائمة
+                  color: Colors.white, fontWeight: FontWeight.bold),
               onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedCategory = newValue;
-                    _nounsFuture = _fetchNounsByCategory(_selectedCategory!);
-                  });
-                }
+                ref.read(selectedCategoryProvider.notifier).state = newValue;
               },
               items:
                   snapshot.data!.map<DropdownMenuItem<String>>((String value) {
