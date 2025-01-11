@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/quiz_widgets/images_matching_test_content.dart';
+import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_content.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/quiz_widgets/images_matching_test_logic.dart';
+import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
 final nounsForGameProvider = FutureProvider.autoDispose
@@ -25,14 +25,14 @@ final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
 
 // تعريف Provider لـ MatchingGameLogic
 final matchingGameLogicProvider =
-    ChangeNotifierProvider.autoDispose<ImagesMatchingTestLogic>((ref) {
+    ChangeNotifierProvider.autoDispose<ImagesMatchingQuizLogic>((ref) {
   final selectedCategory = ref.watch(selectedGameCategoryProvider);
   final nouns = ref.watch(nounsForGameProvider(selectedCategory)).maybeWhen(
         data: (data) => data,
         orElse: () => [],
       ) as List<Noun>;
   final audioPlayer = ref.read(audioPlayerProvider);
-  return ImagesMatchingTestLogic(initialNouns: nouns, audioPlayer: audioPlayer);
+  return ImagesMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
 class ImagesMatchingQuizPage extends ConsumerWidget {
@@ -73,7 +73,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
               }
             });
 
-            return ImagesMatchingTestContent(
+            return ImagesMatchingQuizContent(
               currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
               answerOptions: ref.watch(matchingGameLogicProvider).imageOptions,
               isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,

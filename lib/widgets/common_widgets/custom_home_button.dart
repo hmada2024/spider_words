@@ -1,4 +1,4 @@
-// lib/widgets/custom_home_button.dart ---
+// lib/widgets/common_widgets/custom_home_button.dart
 import 'package:flutter/material.dart';
 
 class CustomHomeButton extends StatelessWidget {

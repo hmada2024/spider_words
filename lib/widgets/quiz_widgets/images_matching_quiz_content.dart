@@ -1,6 +1,5 @@
-// lib/widgets/quiz_widgets/nouns_matching_game_content.dart
+// lib/widgets/quiz_widgets/images_matching_quiz_content.dart
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
 
-class NounsMatchingTestContent extends ConsumerWidget {
+class ImagesMatchingQuizContent extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -21,7 +20,7 @@ class NounsMatchingTestContent extends ConsumerWidget {
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
 
-  const NounsMatchingTestContent({
+  const ImagesMatchingQuizContent({
     super.key,
     required this.currentNoun,
     required this.answerOptions,
@@ -57,9 +56,6 @@ class NounsMatchingTestContent extends ConsumerWidget {
     final double optionButtonWidth = screenWidth * 0.4;
     final double optionButtonPadding = screenWidth * 0.03;
     final double optionSpacing = screenWidth * 0.05;
-    // ignore: unused_local_variable
-    final BorderRadius borderRadius =
-        BorderRadius.circular(screenWidth * AppConstants.borderRadiusRatio);
     final double bottomSpacing = screenHeight * 0.02;
     final double correctTextSize = screenWidth * 0.06;
 
@@ -106,44 +102,92 @@ class NounsMatchingTestContent extends ConsumerWidget {
               child: SizedBox(
                 width: imageDisplayWidth,
                 height: imageDisplayHeight,
-                child: currentNoun?.image != null
-                    ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
-                    : const Icon(Icons.image_not_supported, size: 100),
+                child: Center(
+                  child: IconButton(
+                    icon: Icon(Icons.volume_up, size: 50, color: Colors.blue),
+                    onPressed: isInteractionDisabled
+                        ? null
+                        : () => playAudio(currentNoun?.audio),
+                  ),
+                ),
               ),
             ),
           ),
           SizedBox(height: bottomSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: Column(
-              children: answerOptions.map((option) {
-                final isCorrectOption = option.id == currentNoun?.id;
-                final isAnswered = isCorrect || isWrong;
-                Color? buttonColor = Colors.blue;
-                if (isAnswered) {
-                  buttonColor = isCorrectOption
-                      ? AppConstants.correctColor
-                      : (option.id == currentNoun?.id
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: answerOptions.sublist(0, 2).map((option) {
+                    final isCorrectOption = option.id == currentNoun?.id;
+                    final isAnswered = isCorrect || isWrong;
+                    Color? buttonColor = Colors.blue;
+                    if (isAnswered) {
+                      buttonColor = isCorrectOption
                           ? AppConstants.correctColor
-                          : AppConstants.wrongColor);
-                }
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: optionButtonPadding),
-                  child: SizedBox(
-                    width: optionButtonWidth,
-                    child: ElevatedButton(
-                      onPressed: () => onOptionSelected(option),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
+                          : AppConstants.wrongColor;
+                    }
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      child: SizedBox(
+                        width: optionButtonWidth,
+                        child: ElevatedButton(
+                          onPressed: () => onOptionSelected(option),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            padding: EdgeInsets.all(16), // زيادة الحشوة
+                          ),
+                          child: option.image != null
+                              ? Image.memory(
+                                  option.image!,
+                                  width: 100, // زيادة حجم الصورة
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported, size: 50),
+                        ),
                       ),
-                      child: Text(
-                        option.name,
-                        style: const TextStyle(color: Colors.white),
+                    );
+                  }).toList(),
+                ),
+                Column(
+                  children: answerOptions.sublist(2).map((option) {
+                    final isCorrectOption = option.id == currentNoun?.id;
+                    final isAnswered = isCorrect || isWrong;
+                    Color? buttonColor = Colors.blue;
+                    if (isAnswered) {
+                      buttonColor = isCorrectOption
+                          ? AppConstants.correctColor
+                          : AppConstants.wrongColor;
+                    }
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      child: SizedBox(
+                        width: optionButtonWidth,
+                        child: ElevatedButton(
+                          onPressed: () => onOptionSelected(option),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            padding: EdgeInsets.all(16), // زيادة الحشوة
+                          ),
+                          child: option.image != null
+                              ? Image.memory(
+                                  option.image!,
+                                  width: 100, // زيادة حجم الصورة
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported, size: 50),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
           SizedBox(height: bottomSpacing),

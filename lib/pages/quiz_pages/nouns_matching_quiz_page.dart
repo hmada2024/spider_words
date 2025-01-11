@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/quiz_widgets/nouns_matching_game_content.dart';
+import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_content.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/quiz_widgets/nouns_matching_game_logic.dart';
+import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_logic.dart';
 
 final nounsForAudioImageGameProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
@@ -24,7 +24,7 @@ final selectedAudioImageGameCategoryProvider =
     StateProvider<String>((ref) => 'all');
 
 final audioImageMatchingGameLogicProvider =
-    ChangeNotifierProvider.autoDispose<NounsMatchingTestLogic>((ref) {
+    ChangeNotifierProvider.autoDispose<NounsMatchingQuizLogic>((ref) {
   final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
   final nouns =
       ref.watch(nounsForAudioImageGameProvider(selectedCategory)).maybeWhen(
@@ -32,7 +32,7 @@ final audioImageMatchingGameLogicProvider =
             orElse: () => [],
           ) as List<Noun>;
   final audioPlayer = ref.read(audioPlayerProvider);
-  return NounsMatchingTestLogic(initialNouns: nouns, audioPlayer: audioPlayer);
+  return NounsMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
 class NounsMatchingTestPage extends ConsumerWidget {
@@ -76,7 +76,7 @@ class NounsMatchingTestPage extends ConsumerWidget {
               }
             });
 
-            return NounsMatchingTestContent(
+            return NounsMatchingQuizContent(
               currentNoun:
                   ref.watch(audioImageMatchingGameLogicProvider).currentNoun,
               answerOptions:
