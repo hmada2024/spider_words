@@ -14,7 +14,7 @@ final nounsForGameProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
   if (category == 'all') {
-    return dbHelper.getNounsForMatchingGame();
+    return dbHelper.getNounsForMatchingQuiz();
   } else {
     return dbHelper.getNounsByCategory(category);
   }

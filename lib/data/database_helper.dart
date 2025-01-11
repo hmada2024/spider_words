@@ -122,7 +122,7 @@ class DatabaseHelper {
   }
 
   // Function to retrieve nouns for the matching game
-  Future<List<Noun>> getNounsForMatchingGame() async {
+  Future<List<Noun>> getNounsForMatchingQuiz() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       Constants.nounsTable,
