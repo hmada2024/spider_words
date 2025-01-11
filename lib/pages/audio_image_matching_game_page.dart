@@ -1,4 +1,4 @@
-// lib/pages/matching_game_page.dart
+// lib/pages/audio_image_matching_game_page.dart
 import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
 
 import 'package:flutter/material.dart';
@@ -7,42 +7,43 @@ import 'package:path/path.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/matching_game_content.dart';
+import 'package:spider_words/widgets/audio_image_matching_game_content.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/matching_game_logic.dart';
+import 'package:spider_words/widgets/audio_image_matching_game_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
-final nounsForGameProvider = FutureProvider.autoDispose
+final nounsForAudioImageGameProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
   if (category == 'all') {
     return dbHelper.getNounsForMatchingGame();
   } else {
-    return dbHelper.getNounsByCategory(
-        category); // استخدام الدالة الجديدة لجلب الأسماء حسب الفئة
+    return dbHelper.getNounsByCategory(category);
   }
 });
 
-// تعريف Provider للفئة المختارة في لعبة المطابقة
-final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
+// تعريف Provider للفئة المختارة في لعبة الصورة والصوت
+final selectedAudioImageGameCategoryProvider =
+    StateProvider<String>((ref) => 'all');
 
-// تعريف Provider لـ MatchingGameLogic. نستخدم ChangeNotifierProvider لأنه MatchingGameLogic يرث من ChangeNotifier
-final matchingGameLogicProvider =
-    ChangeNotifierProvider.autoDispose<MatchingGameLogic>((ref) {
-  final selectedCategory = ref.watch(selectedGameCategoryProvider);
-  final nouns = ref.watch(nounsForGameProvider(selectedCategory)).maybeWhen(
-        data: (data) => data,
-        orElse: () => [],
-      ) as List<Noun>;
+// تعريف Provider لـ AudioImageMatchingGameLogic
+final audioImageMatchingGameLogicProvider =
+    ChangeNotifierProvider.autoDispose<AudioImageMatchingGameLogic>((ref) {
+  final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
+  final nouns =
+      ref.watch(nounsForAudioImageGameProvider(selectedCategory)).maybeWhen(
+            data: (data) => data,
+            orElse: () => [],
+          ) as List<Noun>;
   final audioPlayer = ref.read(audioPlayerProvider);
-  return MatchingGameLogic(initialNouns: nouns, audioPlayer: audioPlayer);
+  return AudioImageMatchingGameLogic(
+      initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-// تغيير StatelessWidget إلى ConsumerWidget لاستخدام Riverpod
-class MatchingGamePage extends ConsumerWidget {
-  static const routeName = '/matching_game';
+class AudioImageMatchingGamePage extends ConsumerWidget {
+  static const routeName = '/audio_image_matching_game';
 
-  const MatchingGamePage({super.key});
+  const AudioImageMatchingGamePage({super.key});
 
   String _formatCategoryName(String category) {
     return category
@@ -53,13 +54,13 @@ class MatchingGamePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // قراءة حالة تحميل الأسماء
-    final selectedCategory = ref.watch(selectedGameCategoryProvider);
-    final nounsState = ref.watch(nounsForGameProvider(selectedCategory));
+    final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
+    final nounsState =
+        ref.watch(nounsForAudioImageGameProvider(selectedCategory));
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Matching Game',
+        title: 'Image & Audio Match',
         actions: [
           _buildCategoryDropdown(ref),
         ],
@@ -69,32 +70,40 @@ class MatchingGamePage extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
           data: (nouns) {
-            // تحديث عدد الأسئلة الكلية بناءً على عدد العناصر في قائمة الأسماء
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (ref.read(matchingGameLogicProvider).totalQuestions !=
+              if (ref
+                      .read(audioImageMatchingGameLogicProvider)
+                      .totalQuestions !=
                   nouns.length) {
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(audioImageMatchingGameLogicProvider)
                     .setTotalQuestions(nouns.length);
               }
             });
 
-            return MatchingGameContent(
-              currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
-              imageOptions: ref.watch(matchingGameLogicProvider).imageOptions,
-              isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,
-              isWrong: ref.watch(matchingGameLogicProvider).isWrong,
-              score: ref.watch(matchingGameLogicProvider).score,
-              answeredQuestions:
-                  ref.watch(matchingGameLogicProvider).answeredQuestions,
+            return AudioImageMatchingGameContent(
+              currentNoun:
+                  ref.watch(audioImageMatchingGameLogicProvider).currentNoun,
+              answerOptions:
+                  ref.watch(audioImageMatchingGameLogicProvider).answerOptions,
+              isCorrect:
+                  ref.watch(audioImageMatchingGameLogicProvider).isCorrect,
+              isWrong: ref.watch(audioImageMatchingGameLogicProvider).isWrong,
+              score: ref.watch(audioImageMatchingGameLogicProvider).score,
+              answeredQuestions: ref
+                  .watch(audioImageMatchingGameLogicProvider)
+                  .answeredQuestions,
               totalQuestions:
-                  ref.watch(matchingGameLogicProvider).totalQuestions,
-              onOptionSelected: (noun) =>
-                  ref.read(matchingGameLogicProvider).checkAnswer(noun),
-              playCurrentNounAudio: () =>
-                  ref.read(matchingGameLogicProvider).playCurrentNounAudio(),
-              isInteractionDisabled:
-                  ref.watch(matchingGameLogicProvider).isInteractionDisabled,
+                  ref.watch(audioImageMatchingGameLogicProvider).totalQuestions,
+              onOptionSelected: (noun) => ref
+                  .read(audioImageMatchingGameLogicProvider)
+                  .checkAnswer(noun),
+              playCurrentNounAudio: () => ref
+                  .read(audioImageMatchingGameLogicProvider)
+                  .playCurrentNounAudio(),
+              isInteractionDisabled: ref
+                  .watch(audioImageMatchingGameLogicProvider)
+                  .isInteractionDisabled,
             );
           },
         ),
@@ -128,7 +137,7 @@ class MatchingGamePage extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
-              value: ref.watch(selectedGameCategoryProvider),
+              value: ref.watch(selectedAudioImageGameCategoryProvider),
               underline: Container(),
               icon: Icon(Icons.arrow_drop_down,
                   color: Colors.white, size: dropdownIconSize),
@@ -136,11 +145,11 @@ class MatchingGamePage extends ConsumerWidget {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
               onChanged: (String? newValue) {
-                ref.read(selectedGameCategoryProvider.notifier).state =
-                    newValue!;
-                // إعادة تهيئة اللعبة عند تغيير الفئة
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(selectedAudioImageGameCategoryProvider.notifier)
+                    .state = newValue!;
+                ref
+                    .read(audioImageMatchingGameLogicProvider)
                     .resetGameForCategory(newValue);
               },
               items: categories.map<DropdownMenuItem<String>>((String value) {
@@ -158,9 +167,8 @@ class MatchingGamePage extends ConsumerWidget {
     );
   }
 
-  // دالة عرض الـ Game Over Dialog. الآن تستقبل BuildContext و WidgetRef
   void _showGameOverDialog(BuildContext context, WidgetRef ref) {
-    final gameLogic = ref.read(matchingGameLogicProvider);
+    final gameLogic = ref.read(audioImageMatchingGameLogicProvider);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -173,9 +181,10 @@ class MatchingGamePage extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                final currentCategory = ref.read(selectedGameCategoryProvider);
+                final currentCategory =
+                    ref.read(selectedAudioImageGameCategoryProvider);
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(audioImageMatchingGameLogicProvider)
                     .resetGameForCategory(currentCategory);
               },
               child: const Text('Play Again'),
