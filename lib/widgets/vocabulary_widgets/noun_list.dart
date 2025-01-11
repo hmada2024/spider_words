@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/models/nouns_model.dart';
-import 'package:spider_words/widgets/noun_item.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/noun_item.dart';
 
 class NounList extends StatelessWidget {
   final Future<List<Noun>>? nounsFuture;

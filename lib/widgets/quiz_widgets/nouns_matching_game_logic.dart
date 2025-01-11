@@ -1,4 +1,4 @@
-// lib/logic/matching_game_logic.dart
+// lib/widgets/quiz_widgets/nouns_matching_game_logic.dart
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
@@ -7,29 +7,30 @@ import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
 
-class MatchingGameLogic extends ChangeNotifier {
+class NounsMatchingTestLogic extends ChangeNotifier {
   List<Noun> initialNouns;
   final AudioPlayer audioPlayer;
   List<Noun> _nouns = [];
   Noun? _currentNoun;
-  List<Noun> _imageOptions = [];
+  List<Noun> _answerOptions = [];
   bool _isCorrect = false;
   bool _isWrong = false;
   int _score = 0;
   int _answeredQuestions = 0;
   bool _isInteractionDisabled = false;
-  int _totalQuestions = 0; // إضافة متغير لعدد الأسئلة الكلية
+  int _totalQuestions = 0;
 
   int get score => _score;
   int get answeredQuestions => _answeredQuestions;
   int get totalQuestions => _totalQuestions;
   Noun? get currentNoun => _currentNoun;
-  List<Noun> get imageOptions => _imageOptions;
+  List<Noun> get answerOptions => _answerOptions;
   bool get isCorrect => _isCorrect;
   bool get isWrong => _isWrong;
   bool get isInteractionDisabled => _isInteractionDisabled;
 
-  MatchingGameLogic({required this.initialNouns, required this.audioPlayer}) {
+  NounsMatchingTestLogic(
+      {required this.initialNouns, required this.audioPlayer}) {
     _startNewGame();
   }
 
@@ -50,16 +51,15 @@ class MatchingGameLogic extends ChangeNotifier {
       _isWrong = false;
       _isInteractionDisabled = false;
       _currentNoun = _nouns.removeAt(0);
-      _imageOptions = _generateImageOptions(_currentNoun!);
-      _imageOptions.shuffle();
-      playCurrentNounAudio();
+      _answerOptions = _generateAnswerOptions(_currentNoun!);
+      _answerOptions.shuffle();
       notifyListeners();
     } else {
-      // Game Over - سيتم التعامل معها في واجهة المستخدم
+      // Game Over
     }
   }
 
-  List<Noun> _generateImageOptions(Noun correctNoun) {
+  List<Noun> _generateAnswerOptions(Noun correctNoun) {
     final List<Noun> options = [correctNoun];
     final otherNouns = initialNouns
         .where((noun) => noun.id != correctNoun.id)
@@ -112,20 +112,23 @@ class MatchingGameLogic extends ChangeNotifier {
   Future<void> checkAnswer(Noun selectedNoun) async {
     _answeredQuestions++;
     _isInteractionDisabled = true;
-    notifyListeners(); // إعلام الواجهة بتعطيل التفاعل
+    notifyListeners();
 
     if (_currentNoun != null && selectedNoun.id == _currentNoun!.id) {
       _isCorrect = true;
       _score++;
-      playSound(AppConstants.correctAnswerSound); // Play sound immediately
-      notifyListeners(); // إعلام الواجهة بالإجابة الصحيحة والنتيجة الجديدة
-      await Future.delayed(const Duration(seconds: 1)); // Reduced delay
+      playSound(AppConstants.correctAnswerSound);
+      if (_currentNoun?.audio != null) {
+        await _playAudio(_currentNoun!.audio);
+      }
+      notifyListeners();
+      await Future.delayed(const Duration(seconds: 1));
       _nextQuestion();
     } else {
       _isWrong = true;
-      playSound(AppConstants.wrongAnswerSound); // Play sound immediately
-      notifyListeners(); // إعلام الواجهة بالإجابة الخاطئة
-      await Future.delayed(const Duration(milliseconds: 1600)); // Reduced delay
+      playSound(AppConstants.wrongAnswerSound);
+      notifyListeners();
+      await Future.delayed(const Duration(milliseconds: 1600));
       _nextQuestion();
     }
   }
@@ -133,7 +136,7 @@ class MatchingGameLogic extends ChangeNotifier {
   void resetGame() {
     _score = 0;
     _answeredQuestions = 0;
-    _startNewGame(); // إعادة بدء اللعبة
+    _startNewGame();
     notifyListeners();
   }
 

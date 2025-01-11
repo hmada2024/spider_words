@@ -1,4 +1,4 @@
-// lib/widgets/matching_game_content.dart
+// lib/widgets/quiz_widgets/images_matching_test_content.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
 
-class MatchingGameContent extends ConsumerWidget {
+class ImagesMatchingTestContent extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -20,7 +20,7 @@ class MatchingGameContent extends ConsumerWidget {
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
 
-  const MatchingGameContent({
+  const ImagesMatchingTestContent({
     super.key,
     required this.currentNoun,
     required this.answerOptions,

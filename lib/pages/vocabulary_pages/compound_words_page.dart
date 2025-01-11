@@ -1,12 +1,12 @@
-// lib/pages/compound_words_page.dart
+// lib/pages/vocabulary_pages/compound_words_page.dart
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/compound_word_model.dart';
-import 'package:spider_words/widgets/compound_word_card.dart';
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
-import '../main.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/compound_word_card.dart';
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
+import '../../main.dart';
 
 // Provider to fetch compound words
 final compoundWordsProvider =

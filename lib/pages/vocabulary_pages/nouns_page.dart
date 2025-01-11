@@ -1,13 +1,13 @@
-// pages/nouns_page.dart
+// lib/pages/vocabulary_pages/nouns_page.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/noun_list.dart';
-import '../main.dart';
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/noun_list.dart';
+import '../../main.dart';
 
 // Provider to fetch nouns by category
 final nounsByCategoryProvider =

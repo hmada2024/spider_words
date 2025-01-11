@@ -1,13 +1,13 @@
-// lib/pages/matching_game_page.dart
+// lib/pages/quiz_pages/images_matching_quiz_page.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/matching_game_content.dart';
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
+import 'package:spider_words/widgets/quiz_widgets/images_matching_test_content.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/matching_game_logic.dart';
+import 'package:spider_words/widgets/quiz_widgets/images_matching_test_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
 final nounsForGameProvider = FutureProvider.autoDispose
@@ -25,20 +25,20 @@ final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
 
 // تعريف Provider لـ MatchingGameLogic
 final matchingGameLogicProvider =
-    ChangeNotifierProvider.autoDispose<MatchingGameLogic>((ref) {
+    ChangeNotifierProvider.autoDispose<ImagesMatchingTestLogic>((ref) {
   final selectedCategory = ref.watch(selectedGameCategoryProvider);
   final nouns = ref.watch(nounsForGameProvider(selectedCategory)).maybeWhen(
         data: (data) => data,
         orElse: () => [],
       ) as List<Noun>;
   final audioPlayer = ref.read(audioPlayerProvider);
-  return MatchingGameLogic(initialNouns: nouns, audioPlayer: audioPlayer);
+  return ImagesMatchingTestLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-class MatchingGamePage extends ConsumerWidget {
+class ImagesMatchingQuizPage extends ConsumerWidget {
   static const routeName = '/matching_game';
 
-  const MatchingGamePage({super.key});
+  const ImagesMatchingQuizPage({super.key});
 
   String _formatCategoryName(String category) {
     return category
@@ -73,7 +73,7 @@ class MatchingGamePage extends ConsumerWidget {
               }
             });
 
-            return MatchingGameContent(
+            return ImagesMatchingTestContent(
               currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
               answerOptions: ref.watch(matchingGameLogicProvider).imageOptions,
               isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,

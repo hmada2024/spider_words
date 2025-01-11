@@ -1,12 +1,12 @@
-// pages/adjectives_page.dart
+// lib/pages/vocabulary_pages/adjectives_page.dart
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/widgets/adjective_list.dart';
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
-import '../main.dart';
-import '../models/adjective_model.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/adjective_list.dart';
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
+import '../../main.dart';
+import '../../models/adjective_model.dart';
 
 // Provider to fetch adjectives
 final adjectivesProvider =

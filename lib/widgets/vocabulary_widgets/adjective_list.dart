@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/models/adjective_model.dart';
-import 'package:spider_words/widgets/adjective_card.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/adjective_card.dart';
 
 class AdjectiveList extends StatelessWidget {
   final Future<List<Adjective>> adjectivesFuture;

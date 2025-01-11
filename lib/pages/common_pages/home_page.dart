@@ -1,13 +1,13 @@
-// lib/pages/home_page.dart
+// lib/pages/common_pages/home_page.dart
 import 'package:flutter/material.dart';
-import 'package:spider_words/pages/adjectives_page.dart';
-import 'package:spider_words/pages/compound_words_page.dart';
-import 'package:spider_words/pages/nouns_page.dart';
-import 'package:spider_words/pages/matching_game_page.dart'; // استيراد صفحة لعبة المطابقة
-import 'package:spider_words/pages/audio_image_matching_game_page.dart'; // استيراد صفحة لعبة الصوت والصورة
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_home_button.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
+import 'package:spider_words/pages/vocabulary_pages/adjectives_page.dart';
+import 'package:spider_words/pages/vocabulary_pages/compound_words_page.dart';
+import 'package:spider_words/pages/vocabulary_pages/nouns_page.dart';
+import 'package:spider_words/pages/quiz_pages/images_matching_quiz_page.dart'; // استيراد صفحة لعبة المطابقة
+import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page.dart'; // استيراد صفحة لعبة الصوت والصورة
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_home_button.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 
 class HomePage extends StatelessWidget {
   static const routeName = '/home';
@@ -67,14 +67,14 @@ class HomeButtons extends StatelessWidget {
         CustomHomeButton(
           icon: Icons.gamepad,
           labelText: 'Matching Game',
-          routeName: MatchingGamePage.routeName,
+          routeName: ImagesMatchingQuizPage.routeName,
           color: Colors.purple.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
           icon: Icons.volume_up,
           labelText: 'Audio & Image Matching',
-          routeName: AudioImageMatchingGamePage.routeName,
+          routeName: NounsMatchingTestPage.routeName,
           color: Colors.red.shade700,
         ),
       ],

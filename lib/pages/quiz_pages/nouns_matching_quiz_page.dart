@@ -1,14 +1,14 @@
-// lib/pages/audio_image_matching_game_page.dart
+// lib/pages/quiz_pages/nouns_matching_quiz_page.dart
 import 'dart:math'; // تم إضافة هذا السطر
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
-import 'package:spider_words/widgets/custom_app_bar.dart';
-import 'package:spider_words/widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/audio_image_matching_game_content.dart';
+import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
+import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
+import 'package:spider_words/widgets/quiz_widgets/nouns_matching_game_content.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/audio_image_matching_game_logic.dart';
+import 'package:spider_words/widgets/quiz_widgets/nouns_matching_game_logic.dart';
 
 final nounsForAudioImageGameProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
@@ -24,7 +24,7 @@ final selectedAudioImageGameCategoryProvider =
     StateProvider<String>((ref) => 'all');
 
 final audioImageMatchingGameLogicProvider =
-    ChangeNotifierProvider.autoDispose<AudioImageMatchingGameLogic>((ref) {
+    ChangeNotifierProvider.autoDispose<NounsMatchingTestLogic>((ref) {
   final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
   final nouns =
       ref.watch(nounsForAudioImageGameProvider(selectedCategory)).maybeWhen(
@@ -32,14 +32,13 @@ final audioImageMatchingGameLogicProvider =
             orElse: () => [],
           ) as List<Noun>;
   final audioPlayer = ref.read(audioPlayerProvider);
-  return AudioImageMatchingGameLogic(
-      initialNouns: nouns, audioPlayer: audioPlayer);
+  return NounsMatchingTestLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-class AudioImageMatchingGamePage extends ConsumerWidget {
+class NounsMatchingTestPage extends ConsumerWidget {
   static const routeName = '/audio_image_matching_game';
 
-  const AudioImageMatchingGamePage({super.key});
+  const NounsMatchingTestPage({super.key});
 
   String _formatCategoryName(String category) {
     return category
@@ -77,7 +76,7 @@ class AudioImageMatchingGamePage extends ConsumerWidget {
               }
             });
 
-            return AudioImageMatchingGameContent(
+            return NounsMatchingTestContent(
               currentNoun:
                   ref.watch(audioImageMatchingGameLogicProvider).currentNoun,
               answerOptions:
