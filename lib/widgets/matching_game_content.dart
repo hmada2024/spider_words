@@ -1,10 +1,15 @@
 // lib/widgets/matching_game_content.dart
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
 import 'package:spider_words/utils/screen_utils.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:spider_words/main.dart';
 
-class MatchingGameContent extends StatelessWidget {
+class MatchingGameContent extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> imageOptions;
   final bool isCorrect;
@@ -31,9 +36,20 @@ class MatchingGameContent extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = ScreenUtils.getWidth(context);
     final screenHeight = ScreenUtils.getHeight(context);
+    final audioPlayer = ref.watch(audioPlayerProvider);
+
+    Future<void> playAudio(Uint8List? audioBytes) async {
+      if (audioBytes != null) {
+        try {
+          await audioPlayer.play(BytesSource(audioBytes));
+        } catch (e) {
+          debugPrint('Error playing audio: $e');
+        }
+      }
+    }
 
     final double topInfoPadding = screenHeight * 0.02;
     final double audioIconRadius = screenWidth * 0.12;
@@ -88,7 +104,7 @@ class MatchingGameContent extends StatelessWidget {
                 backgroundColor: Colors.blue.shade100,
                 child: IconButton(
                   icon: Icon(Icons.volume_up, size: audioIconSize),
-                  onPressed: playCurrentNounAudio,
+                  onPressed: () => playAudio(currentNoun?.audio),
                 ),
               ),
             ),

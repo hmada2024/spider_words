@@ -1,17 +1,17 @@
 // lib/pages/matching_game_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/data/database_helper.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/matching_game_content.dart';
+import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/matching_game_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
 final nounsForGameProvider =
     FutureProvider.autoDispose<List<Noun>>((ref) async {
-  final dbHelper = DatabaseHelper();
+  final dbHelper = ref.read(databaseHelperProvider);
   return dbHelper.getNounsForMatchingGame();
 });
 
@@ -22,7 +22,8 @@ final matchingGameLogicProvider =
         data: (data) => data,
         orElse: () => [],
       ) as List<Noun>;
-  return MatchingGameLogic(initialNouns: nouns);
+  final audioPlayer = ref.read(audioPlayerProvider);
+  return MatchingGameLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
 // تغيير StatelessWidget إلى ConsumerWidget لاستخدام Riverpod

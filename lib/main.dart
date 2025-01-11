@@ -8,6 +8,20 @@ import 'package:spider_words/pages/nouns_page.dart';
 import 'package:spider_words/pages/matching_game_page.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:spider_words/data/database_helper.dart';
+
+// Provider for AudioPlayer
+final audioPlayerProvider = Provider<AudioPlayer>((ref) {
+  final player = AudioPlayer();
+  ref.onDispose(() => player.dispose());
+  return player;
+});
+
+// Provider for DatabaseHelper
+final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
+  return DatabaseHelper();
+});
 
 void main() {
   sqfliteFfiInit();

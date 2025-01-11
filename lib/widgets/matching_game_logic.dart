@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
 
-// لم نعد بحاجة إلى الـ with ChangeNotifier هنا لأن ChangeNotifierProvider سيتولى الأمر
 class MatchingGameLogic extends ChangeNotifier {
   final List<Noun> initialNouns;
+  final AudioPlayer audioPlayer;
   List<Noun> _nouns = [];
   Noun? _currentNoun;
   List<Noun> _imageOptions = [];
-  final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isCorrect = false;
   bool _isWrong = false;
   int _score = 0;
@@ -29,8 +28,7 @@ class MatchingGameLogic extends ChangeNotifier {
   bool get isWrong => _isWrong;
   bool get isInteractionDisabled => _isInteractionDisabled;
 
-  // سيتم استدعاء هذا الـ Constructor عند إنشاء الـ Provider
-  MatchingGameLogic({required this.initialNouns}) {
+  MatchingGameLogic({required this.initialNouns, required this.audioPlayer}) {
     _startNewGame();
   }
 
@@ -82,7 +80,7 @@ class MatchingGameLogic extends ChangeNotifier {
   Future<void> _playAudio(Uint8List? audioBytes) async {
     if (audioBytes != null) {
       try {
-        await _audioPlayer.play(BytesSource(audioBytes));
+        await audioPlayer.play(BytesSource(audioBytes));
       } catch (e) {
         debugPrint('Error playing audio: $e');
       }
@@ -97,8 +95,8 @@ class MatchingGameLogic extends ChangeNotifier {
 
   Future<void> playSound(String assetPath) async {
     try {
-      await _audioPlayer.stop();
-      await _audioPlayer.play(AssetSource(assetPath.replaceAll('assets/', '')));
+      await audioPlayer.stop();
+      await audioPlayer.play(AssetSource(assetPath.replaceAll('assets/', '')));
     } catch (e) {
       debugPrint('Error playing sound effect: $e');
     }
@@ -134,7 +132,6 @@ class MatchingGameLogic extends ChangeNotifier {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
     super.dispose();
   }
 }
