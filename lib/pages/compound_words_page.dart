@@ -1,13 +1,21 @@
 // lib/pages/compound_words_page.dart
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/compound_word_model.dart';
 import 'package:spider_words/widgets/compound_word_card.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
-import '../data/database_helper.dart';
+import '../main.dart';
 
-class CompoundWordsPage extends StatefulWidget {
+// Provider to fetch compound words
+final compoundWordsProvider =
+    FutureProvider.autoDispose<List<CompoundWord>>((ref) async {
+  final dbHelper = ref.read(databaseHelperProvider);
+  return dbHelper.getCompoundWords();
+});
+
+class CompoundWordsPage extends ConsumerStatefulWidget {
   static const routeName = '/compound_words';
 
   const CompoundWordsPage({super.key});
@@ -16,15 +24,8 @@ class CompoundWordsPage extends StatefulWidget {
   CompoundWordsPageState createState() => CompoundWordsPageState();
 }
 
-class CompoundWordsPageState extends State<CompoundWordsPage> {
-  late Future<List<CompoundWord>> _compoundWordsFuture;
+class CompoundWordsPageState extends ConsumerState<CompoundWordsPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
-
-  @override
-  void initState() {
-    super.initState();
-    _compoundWordsFuture = DatabaseHelper().getCompoundWords();
-  }
 
   @override
   void dispose() {
@@ -34,53 +35,43 @@ class CompoundWordsPageState extends State<CompoundWordsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final compoundWordsAsyncValue = ref.watch(compoundWordsProvider);
+
     return Scaffold(
       appBar: const CustomAppBar(title: 'Compound Words'),
       body: CustomGradient(
         child: RefreshIndicator(
           onRefresh: () async {
-            // أعد تحميل البيانات هنا
-            setState(() {
-              _compoundWordsFuture = DatabaseHelper().getCompoundWords();
-            });
+            // Trigger a refetch by invalidating the provider
+            ref.invalidate(compoundWordsProvider);
+            await ref.read(compoundWordsProvider.future);
           },
-          child: FutureBuilder<List<CompoundWord>>(
-            future: _compoundWordsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                    child: CircularProgressIndicator(color: Colors.white));
-              } else if (snapshot.hasError) {
-                return Center(
-                    child: Text('Error: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.white)));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text('No data available.',
-                        style: TextStyle(color: Colors.white)));
-              } else {
-                return CustomScrollView(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
+          child: compoundWordsAsyncValue.when(
+            loading: () => const Center(
+                child: CircularProgressIndicator(color: Colors.white)),
+            error: (error, stackTrace) => Center(
+                child: Text('Error: $error',
+                    style: const TextStyle(color: Colors.white))),
+            data: (compoundWords) => CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              slivers: <Widget>[
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final compoundWord = compoundWords[index];
+                      return CompoundWordCard(
+                        compoundWord: compoundWord,
+                        audioPlayer: _audioPlayer,
+                        index: index,
+                      );
+                    },
+                    childCount: compoundWords.length,
                   ),
-                  slivers: <Widget>[
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final compoundWord = snapshot.data![index];
-                          return CompoundWordCard(
-                            compoundWord: compoundWord,
-                            audioPlayer: _audioPlayer,
-                            index: index,
-                          );
-                        },
-                        childCount: snapshot.data!.length,
-                      ),
-                    ),
-                  ],
-                );
-              }
-            },
+                ),
+              ],
+            ),
           ),
         ),
       ),
