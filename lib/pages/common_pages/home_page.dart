@@ -66,14 +66,14 @@ class HomeButtons extends StatelessWidget {
         SizedBox(height: spacing),
         CustomHomeButton(
           icon: Icons.gamepad,
-          labelText: 'Matching Game',
+          labelText: 'Images Matching',
           routeName: ImagesMatchingQuizPage.routeName,
           color: Colors.purple.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
           icon: Icons.volume_up,
-          labelText: 'Audio & Image Matching',
+          labelText: 'Nouns Matching',
           routeName: NounsMatchingQuizPage.routeName,
           color: Colors.red.shade700,
         ),
