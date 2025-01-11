@@ -74,7 +74,7 @@ class HomeButtons extends StatelessWidget {
         CustomHomeButton(
           icon: Icons.volume_up,
           labelText: 'Audio & Image Matching',
-          routeName: NounsMatchingTestPage.routeName,
+          routeName: NounsMatchingQuizPage.routeName,
           color: Colors.red.shade700,
         ),
       ],

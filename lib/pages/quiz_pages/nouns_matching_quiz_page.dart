@@ -35,10 +35,10 @@ final audioImageMatchingGameLogicProvider =
   return NounsMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-class NounsMatchingTestPage extends ConsumerWidget {
+class NounsMatchingQuizPage extends ConsumerWidget {
   static const routeName = '/audio_image_matching_game';
 
-  const NounsMatchingTestPage({super.key});
+  const NounsMatchingQuizPage({super.key});
 
   String _formatCategoryName(String category) {
     return category

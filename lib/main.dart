@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
         CompoundWordsPage.routeName: (context) => const CompoundWordsPage(),
         ImagesMatchingQuizPage.routeName: (context) =>
             const ImagesMatchingQuizPage(), // إضافة مسار صفحة لعبة المطابقة
-        NounsMatchingTestPage.routeName: (context) =>
-            const NounsMatchingTestPage(), // إضافة مسار الصفحة الجديدة
+        NounsMatchingQuizPage.routeName: (context) =>
+            const NounsMatchingQuizPage(), // إضافة مسار الصفحة الجديدة
       },
     );
   }
