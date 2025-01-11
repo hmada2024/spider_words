@@ -44,35 +44,30 @@ class HomeButtons extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         CustomHomeButton(
-          icon: Icons.record_voice_over,
           labelText: 'Adjectives',
           routeName: AdjectivesPage.routeName,
           color: Colors.blueAccent.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          icon: Icons.category,
           labelText: 'Nouns',
           routeName: NounsPage.routeName,
           color: Colors.green.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          icon: Icons.merge_type,
           labelText: 'Compound Words',
           routeName: CompoundWordsPage.routeName,
           color: Colors.orange.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          icon: Icons.gamepad,
           labelText: 'Images Matching',
           routeName: ImagesMatchingQuizPage.routeName,
           color: Colors.purple.shade700,
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          icon: Icons.volume_up,
           labelText: 'Nouns Matching',
           routeName: NounsMatchingQuizPage.routeName,
           color: Colors.red.shade700,
