@@ -1,9 +1,8 @@
 // lib/pages/audio_image_matching_game_page.dart
-import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+import 'dart:math'; // تم إضافة هذا السطر
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
@@ -59,7 +58,7 @@ class AudioImageMatchingGamePage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Image & Audio Match',
         actions: [
-          _buildCategoryDropdown(ref, context), // تم تعديل هذه السطر
+          _buildCategoryDropdown(ref, context),
         ],
       ),
       body: CustomGradient(
@@ -114,7 +113,6 @@ class AudioImageMatchingGamePage extends ConsumerWidget {
   }
 
   Widget _buildCategoryDropdown(WidgetRef ref, BuildContext context) {
-    // تم تعديل هذه السطر
     final screenWidth = MediaQuery.of(context).size.width;
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 

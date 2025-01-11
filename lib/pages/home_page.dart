@@ -1,9 +1,10 @@
-// pages/home_page.dart
+// lib/pages/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:spider_words/pages/adjectives_page.dart';
 import 'package:spider_words/pages/compound_words_page.dart';
 import 'package:spider_words/pages/nouns_page.dart';
 import 'package:spider_words/pages/matching_game_page.dart'; // استيراد صفحة لعبة المطابقة
+import 'package:spider_words/pages/audio_image_matching_game_page.dart'; // استيراد صفحة لعبة الصوت والصورة
 import 'package:spider_words/widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/custom_home_button.dart';
 import 'package:spider_words/widgets/custom_gradient.dart';
@@ -64,11 +65,17 @@ class HomeButtons extends StatelessWidget {
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          // إضافة زر لعبة المطابقة
           icon: Icons.gamepad,
           labelText: 'Matching Game',
           routeName: MatchingGamePage.routeName,
           color: Colors.purple.shade700,
+        ),
+        SizedBox(height: spacing),
+        CustomHomeButton(
+          icon: Icons.volume_up,
+          labelText: 'Audio & Image Matching',
+          routeName: AudioImageMatchingGamePage.routeName,
+          color: Colors.red.shade700,
         ),
       ],
     );

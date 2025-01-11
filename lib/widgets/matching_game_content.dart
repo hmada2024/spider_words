@@ -19,16 +19,11 @@ class MatchingGameContent extends ConsumerWidget {
   final Function(Noun) onOptionSelected;
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
-  final bool showAudioIcon; // إضافة متغير للتحكم في عرض أيقونة الصوت
-  final bool
-      playAudioOnImageTap; // إضافة متغير للتحكم في تشغيل الصوت عند النقر على الصورة
-  final bool
-      displayImageOptions; // إضافة متغير للتحكم في عرض خيارات الإجابة كصور أم نصوص
 
   const MatchingGameContent({
     super.key,
     required this.currentNoun,
-    this.answerOptions = const [], // تعيين قيمة افتراضية
+    required this.answerOptions,
     required this.isCorrect,
     required this.isWrong,
     required this.score,
@@ -37,10 +32,6 @@ class MatchingGameContent extends ConsumerWidget {
     required this.onOptionSelected,
     required this.playCurrentNounAudio,
     required this.isInteractionDisabled,
-    this.showAudioIcon = true, // القيمة الافتراضية هي إظهار الأيقونة
-    this.playAudioOnImageTap =
-        false, // القيمة الافتراضية هي عدم التشغيل عند النقر
-    this.displayImageOptions = true, // القيمة الافتراضية هي عرض الصور
   });
 
   @override
@@ -65,9 +56,6 @@ class MatchingGameContent extends ConsumerWidget {
     final double optionButtonWidth = screenWidth * 0.4;
     final double optionButtonPadding = screenWidth * 0.03;
     final double optionSpacing = screenWidth * 0.05;
-    // ignore: unused_local_variable
-    final BorderRadius borderRadius =
-        BorderRadius.circular(screenWidth * AppConstants.borderRadiusRatio);
     final double bottomSpacing = screenHeight * 0.02;
     final double correctTextSize = screenWidth * 0.06;
 
@@ -110,31 +98,17 @@ class MatchingGameContent extends ConsumerWidget {
             child: GestureDetector(
               onTap: isInteractionDisabled
                   ? null
-                  : (playAudioOnImageTap && currentNoun?.audio != null)
-                      ? () => playAudio(currentNoun?.audio)
-                      : null,
+                  : () => playAudio(currentNoun?.audio),
               child: SizedBox(
                 width: imageDisplayWidth,
                 height: imageDisplayHeight,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    currentNoun?.image != null
-                        ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
-                        : const Icon(Icons.image_not_supported, size: 100),
-                    if (showAudioIcon)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon:
-                              const Icon(Icons.volume_up, color: Colors.white),
-                          onPressed: isInteractionDisabled
-                              ? null
-                              : () => playAudio(currentNoun?.audio),
-                        ),
-                      ),
-                  ],
+                child: Center(
+                  child: IconButton(
+                    icon: Icon(Icons.volume_up, size: 50, color: Colors.blue),
+                    onPressed: isInteractionDisabled
+                        ? null
+                        : () => playAudio(currentNoun?.audio),
+                  ),
                 ),
               ),
             ),
@@ -142,50 +116,78 @@ class MatchingGameContent extends ConsumerWidget {
           SizedBox(height: bottomSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: Column(
-              children: answerOptions.map((option) {
-                final isCorrectOption = option.id == currentNoun?.id;
-                final isAnswered = isCorrect || isWrong;
-                Color? buttonColor = Colors.blue;
-                if (isAnswered) {
-                  buttonColor = isCorrectOption
-                      ? AppConstants.correctColor
-                      : AppConstants.wrongColor;
-                }
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: optionButtonPadding),
-                  child: SizedBox(
-                    width: optionButtonWidth,
-                    child: ElevatedButton(
-                      onPressed: () => onOptionSelected(option),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: answerOptions.sublist(0, 2).map((option) {
+                    final isCorrectOption = option.id == currentNoun?.id;
+                    final isAnswered = isCorrect || isWrong;
+                    Color? buttonColor = Colors.blue;
+                    if (isAnswered) {
+                      buttonColor = isCorrectOption
+                          ? AppConstants.correctColor
+                          : AppConstants.wrongColor;
+                    }
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      child: SizedBox(
+                        width: optionButtonWidth,
+                        child: ElevatedButton(
+                          onPressed: () => onOptionSelected(option),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            padding: EdgeInsets.all(16), // زيادة الحشوة
+                          ),
+                          child: option.image != null
+                              ? Image.memory(
+                                  option.image!,
+                                  width: 100, // زيادة حجم الصورة
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported, size: 50),
+                        ),
                       ),
-                      child: displayImageOptions // عرض صور أم نصوص
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (option.image != null)
-                                  Image.memory(
-                                    option.image!,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                SizedBox(width: 8),
-                                Text(
-                                  option.name,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              option.name,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                    ),
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
+                ),
+                Column(
+                  children: answerOptions.sublist(2).map((option) {
+                    final isCorrectOption = option.id == currentNoun?.id;
+                    final isAnswered = isCorrect || isWrong;
+                    Color? buttonColor = Colors.blue;
+                    if (isAnswered) {
+                      buttonColor = isCorrectOption
+                          ? AppConstants.correctColor
+                          : AppConstants.wrongColor;
+                    }
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      child: SizedBox(
+                        width: optionButtonWidth,
+                        child: ElevatedButton(
+                          onPressed: () => onOptionSelected(option),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            padding: EdgeInsets.all(16), // زيادة الحشوة
+                          ),
+                          child: option.image != null
+                              ? Image.memory(
+                                  option.image!,
+                                  width: 100, // زيادة حجم الصورة
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported, size: 50),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
           SizedBox(height: bottomSpacing),
