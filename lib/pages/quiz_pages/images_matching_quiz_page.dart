@@ -10,7 +10,7 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
-final nounsForGameProvider = FutureProvider.autoDispose
+final nounsForQuizProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
   if (category == 'all') {
@@ -21,13 +21,13 @@ final nounsForGameProvider = FutureProvider.autoDispose
 });
 
 // تعريف Provider للفئة المختارة في لعبة المطابقة
-final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
+final selectedQuizCategoryProvider = StateProvider<String>((ref) => 'all');
 
 // تعريف Provider لـ MatchingGameLogic
-final matchingGameLogicProvider =
+final matchingQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<ImagesMatchingQuizLogic>((ref) {
-  final selectedCategory = ref.watch(selectedGameCategoryProvider);
-  final nouns = ref.watch(nounsForGameProvider(selectedCategory)).maybeWhen(
+  final selectedCategory = ref.watch(selectedQuizCategoryProvider);
+  final nouns = ref.watch(nounsForQuizProvider(selectedCategory)).maybeWhen(
         data: (data) => data,
         orElse: () => [],
       ) as List<Noun>;
@@ -49,8 +49,8 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(selectedGameCategoryProvider);
-    final nounsState = ref.watch(nounsForGameProvider(selectedCategory));
+    final selectedCategory = ref.watch(selectedQuizCategoryProvider);
+    final nounsState = ref.watch(nounsForQuizProvider(selectedCategory));
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -65,37 +65,37 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
           data: (nouns) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (ref.read(matchingGameLogicProvider).totalQuestions !=
+              if (ref.read(matchingQuizLogicProvider).totalQuestions !=
                   nouns.length) {
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(matchingQuizLogicProvider)
                     .setTotalQuestions(nouns.length);
               }
             });
 
             return ImagesMatchingQuizContent(
-              currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
-              answerOptions: ref.watch(matchingGameLogicProvider).imageOptions,
-              isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,
-              isWrong: ref.watch(matchingGameLogicProvider).isWrong,
-              score: ref.watch(matchingGameLogicProvider).score,
+              currentNoun: ref.watch(matchingQuizLogicProvider).currentNoun,
+              answerOptions: ref.watch(matchingQuizLogicProvider).imageOptions,
+              isCorrect: ref.watch(matchingQuizLogicProvider).isCorrect,
+              isWrong: ref.watch(matchingQuizLogicProvider).isWrong,
+              score: ref.watch(matchingQuizLogicProvider).score,
               answeredQuestions:
-                  ref.watch(matchingGameLogicProvider).answeredQuestions,
+                  ref.watch(matchingQuizLogicProvider).answeredQuestions,
               totalQuestions:
-                  ref.watch(matchingGameLogicProvider).totalQuestions,
+                  ref.watch(matchingQuizLogicProvider).totalQuestions,
               onOptionSelected: (noun) =>
-                  ref.read(matchingGameLogicProvider).checkAnswer(noun),
+                  ref.read(matchingQuizLogicProvider).checkAnswer(noun),
               playCurrentNounAudio: () =>
-                  ref.read(matchingGameLogicProvider).playCurrentNounAudio(),
+                  ref.read(matchingQuizLogicProvider).playCurrentNounAudio(),
               isInteractionDisabled:
-                  ref.watch(matchingGameLogicProvider).isInteractionDisabled,
+                  ref.watch(matchingQuizLogicProvider).isInteractionDisabled,
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showGameOverDialog(context, ref),
-        tooltip: 'Show Game Over',
+        onPressed: () => _showQuizOverDialog(context, ref),
+        tooltip: 'Show Quiz Over',
         child: const Icon(Icons.flag),
       ),
     );
@@ -122,7 +122,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
-              value: ref.watch(selectedGameCategoryProvider),
+              value: ref.watch(selectedQuizCategoryProvider),
               underline: Container(),
               icon: Icon(Icons.arrow_drop_down,
                   color: Colors.white, size: dropdownIconSize),
@@ -130,10 +130,10 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
               onChanged: (String? newValue) {
-                ref.read(selectedGameCategoryProvider.notifier).state =
+                ref.read(selectedQuizCategoryProvider.notifier).state =
                     newValue!;
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(matchingQuizLogicProvider)
                     .resetQuizForCategory(newValue);
               },
               items: categories.map<DropdownMenuItem<String>>((String value) {
@@ -151,23 +151,23 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
     );
   }
 
-  void _showGameOverDialog(BuildContext context, WidgetRef ref) {
-    final gameLogic = ref.read(matchingGameLogicProvider);
+  void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
+    final quizLogic = ref.read(matchingQuizLogicProvider);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Game Over!'),
           content: Text(
-            'Your final score is: ${gameLogic.score} out of ${gameLogic.totalQuestions}',
+            'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                final currentCategory = ref.read(selectedGameCategoryProvider);
+                final currentCategory = ref.read(selectedQuizCategoryProvider);
                 ref
-                    .read(matchingGameLogicProvider)
+                    .read(matchingQuizLogicProvider)
                     .resetQuizForCategory(currentCategory);
               },
               child: const Text('Play Again'),
