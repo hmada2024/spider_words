@@ -13,11 +13,15 @@ import '../main.dart';
 final nounsByCategoryProvider =
     FutureProvider.family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
-  return dbHelper.getNounsByCategory(category);
+  if (category == 'all') {
+    return dbHelper.getNouns();
+  } else {
+    return dbHelper.getNounsByCategory(category);
+  }
 });
 
 // Provider for the selected category
-final selectedCategoryProvider = StateProvider<String?>((ref) => null);
+final selectedCategoryProvider = StateProvider<String>((ref) => 'all');
 
 class NounsPage extends ConsumerStatefulWidget {
   static const routeName = '/nouns';
@@ -34,19 +38,6 @@ class NounsPageState extends ConsumerState<NounsPage> {
   @override
   void initState() {
     super.initState();
-    _loadInitialCategory();
-  }
-
-  Future<void> _loadInitialCategory() async {
-    final categories = await _fetchCategories();
-    if (categories.isNotEmpty) {
-      ref.read(selectedCategoryProvider.notifier).state = categories.first;
-    }
-  }
-
-  Future<List<String>> _fetchCategories() async {
-    final nouns = await ref.read(databaseHelperProvider).getNouns();
-    return nouns.map((noun) => noun.category).toSet().toList();
   }
 
   @override
@@ -55,11 +46,18 @@ class NounsPageState extends ConsumerState<NounsPage> {
     super.dispose();
   }
 
+  String _formatCategoryName(String category) {
+    return category
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final nounsAsyncValue =
-        ref.watch(nounsByCategoryProvider(selectedCategory ?? ''));
+        ref.watch(nounsByCategoryProvider(selectedCategory));
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -72,10 +70,8 @@ class NounsPageState extends ConsumerState<NounsPage> {
         child: RefreshIndicator(
           onRefresh: () async {
             // Trigger a refetch by invalidating the provider
-            if (selectedCategory != null) {
-              ref.invalidate(nounsByCategoryProvider(selectedCategory));
-              await ref.read(nounsByCategoryProvider(selectedCategory).future);
-            }
+            ref.invalidate(nounsByCategoryProvider(selectedCategory));
+            await ref.read(nounsByCategoryProvider(selectedCategory).future);
           },
           child: nounsAsyncValue.when(
             loading: () => const Center(
@@ -96,7 +92,10 @@ class NounsPageState extends ConsumerState<NounsPage> {
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 
     return FutureBuilder<List<String>>(
-      future: _fetchCategories(),
+      future: ref
+          .read(databaseHelperProvider)
+          .getNouns()
+          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -105,6 +104,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text('No categories available.');
         } else {
+          final categories = ['all', ...snapshot.data!];
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
@@ -116,13 +116,14 @@ class NounsPageState extends ConsumerState<NounsPage> {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
               onChanged: (String? newValue) {
-                ref.read(selectedCategoryProvider.notifier).state = newValue;
+                ref.read(selectedCategoryProvider.notifier).state = newValue!;
               },
-              items:
-                  snapshot.data!.map<DropdownMenuItem<String>>((String value) {
+              items: categories.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(value == 'all'
+                      ? 'All Categories'
+                      : _formatCategoryName(value)),
                 );
               }).toList(),
             ),
