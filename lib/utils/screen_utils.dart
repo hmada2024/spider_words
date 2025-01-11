@@ -1,4 +1,4 @@
-// screen_utils.dart ---
+// lib/utils/screen_utils.dart
 import 'package:flutter/material.dart';
 
 class ScreenUtils {
