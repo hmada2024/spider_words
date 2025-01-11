@@ -1,5 +1,6 @@
-// lib/widgets/matching_game_content.dart
+// lib/widgets/audio_image_matching_game_content.dart
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
 
-class MatchingGameContent extends ConsumerWidget {
+class AudioImageMatchingGameContent extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -19,16 +20,11 @@ class MatchingGameContent extends ConsumerWidget {
   final Function(Noun) onOptionSelected;
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
-  final bool showAudioIcon; // إضافة متغير للتحكم في عرض أيقونة الصوت
-  final bool
-      playAudioOnImageTap; // إضافة متغير للتحكم في تشغيل الصوت عند النقر على الصورة
-  final bool
-      displayImageOptions; // إضافة متغير للتحكم في عرض خيارات الإجابة كصور أم نصوص
 
-  const MatchingGameContent({
+  const AudioImageMatchingGameContent({
     super.key,
     required this.currentNoun,
-    this.answerOptions = const [], // تعيين قيمة افتراضية
+    required this.answerOptions,
     required this.isCorrect,
     required this.isWrong,
     required this.score,
@@ -37,10 +33,6 @@ class MatchingGameContent extends ConsumerWidget {
     required this.onOptionSelected,
     required this.playCurrentNounAudio,
     required this.isInteractionDisabled,
-    this.showAudioIcon = true, // القيمة الافتراضية هي إظهار الأيقونة
-    this.playAudioOnImageTap =
-        false, // القيمة الافتراضية هي عدم التشغيل عند النقر
-    this.displayImageOptions = true, // القيمة الافتراضية هي عرض الصور
   });
 
   @override
@@ -110,32 +102,13 @@ class MatchingGameContent extends ConsumerWidget {
             child: GestureDetector(
               onTap: isInteractionDisabled
                   ? null
-                  : (playAudioOnImageTap && currentNoun?.audio != null)
-                      ? () => playAudio(currentNoun?.audio)
-                      : null,
+                  : () => playAudio(currentNoun?.audio),
               child: SizedBox(
                 width: imageDisplayWidth,
                 height: imageDisplayHeight,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    currentNoun?.image != null
-                        ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
-                        : const Icon(Icons.image_not_supported, size: 100),
-                    if (showAudioIcon)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon:
-                              const Icon(Icons.volume_up, color: Colors.white),
-                          onPressed: isInteractionDisabled
-                              ? null
-                              : () => playAudio(currentNoun?.audio),
-                        ),
-                      ),
-                  ],
-                ),
+                child: currentNoun?.image != null
+                    ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
+                    : const Icon(Icons.image_not_supported, size: 100),
               ),
             ),
           ),
@@ -150,7 +123,9 @@ class MatchingGameContent extends ConsumerWidget {
                 if (isAnswered) {
                   buttonColor = isCorrectOption
                       ? AppConstants.correctColor
-                      : AppConstants.wrongColor;
+                      : (option.id == currentNoun?.id
+                          ? AppConstants.correctColor
+                          : AppConstants.wrongColor);
                 }
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: optionButtonPadding),
@@ -161,27 +136,10 @@ class MatchingGameContent extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: buttonColor,
                       ),
-                      child: displayImageOptions // عرض صور أم نصوص
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (option.image != null)
-                                  Image.memory(
-                                    option.image!,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                SizedBox(width: 8),
-                                Text(
-                                  option.name,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              option.name,
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                      child: Text(
+                        option.name,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 );
