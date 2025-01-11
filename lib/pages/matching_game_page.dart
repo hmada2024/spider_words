@@ -1,4 +1,6 @@
 // lib/pages/matching_game_page.dart
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/models/nouns_model.dart';
@@ -9,16 +11,25 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/matching_game_logic.dart';
 
 // تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
-final nounsForGameProvider =
-    FutureProvider.autoDispose<List<Noun>>((ref) async {
+final nounsForGameProvider = FutureProvider.autoDispose
+    .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
-  return dbHelper.getNounsForMatchingGame();
+  if (category == 'all') {
+    return dbHelper.getNounsForMatchingGame();
+  } else {
+    return dbHelper.getNounsByCategory(
+        category); // استخدام الدالة الجديدة لجلب الأسماء حسب الفئة
+  }
 });
+
+// تعريف Provider للفئة المختارة في لعبة المطابقة
+final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
 
 // تعريف Provider لـ MatchingGameLogic. نستخدم ChangeNotifierProvider لأنه MatchingGameLogic يرث من ChangeNotifier
 final matchingGameLogicProvider =
     ChangeNotifierProvider.autoDispose<MatchingGameLogic>((ref) {
-  final nouns = ref.watch(nounsForGameProvider).maybeWhen(
+  final selectedCategory = ref.watch(selectedGameCategoryProvider);
+  final nouns = ref.watch(nounsForGameProvider(selectedCategory)).maybeWhen(
         data: (data) => data,
         orElse: () => [],
       ) as List<Noun>;
@@ -32,20 +43,41 @@ class MatchingGamePage extends ConsumerWidget {
 
   const MatchingGamePage({super.key});
 
+  String _formatCategoryName(String category) {
+    return category
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // قراءة حالة تحميل الأسماء
-    final nounsState = ref.watch(nounsForGameProvider);
+    final selectedCategory = ref.watch(selectedGameCategoryProvider);
+    final nounsState = ref.watch(nounsForGameProvider(selectedCategory));
 
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         title: 'Matching Game',
+        actions: [
+          _buildCategoryDropdown(ref),
+        ],
       ),
       body: CustomGradient(
         child: nounsState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
           data: (nouns) {
+            // تحديث عدد الأسئلة الكلية بناءً على عدد العناصر في قائمة الأسماء
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (ref.read(matchingGameLogicProvider).totalQuestions !=
+                  nouns.length) {
+                ref
+                    .read(matchingGameLogicProvider)
+                    .setTotalQuestions(nouns.length);
+              }
+            });
+
             return MatchingGameContent(
               currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
               imageOptions: ref.watch(matchingGameLogicProvider).imageOptions,
@@ -74,6 +106,57 @@ class MatchingGamePage extends ConsumerWidget {
     );
   }
 
+  Widget _buildCategoryDropdown(WidgetRef ref) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
+
+    return FutureBuilder<List<String>>(
+      future: ref
+          .read(databaseHelperProvider)
+          .getNouns()
+          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error loading categories: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text('No categories available.');
+        } else {
+          final categories = ['all', ...snapshot.data!];
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: DropdownButton<String>(
+              value: ref.watch(selectedGameCategoryProvider),
+              underline: Container(),
+              icon: Icon(Icons.arrow_drop_down,
+                  color: Colors.white, size: dropdownIconSize),
+              dropdownColor: Colors.blueAccent,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
+              onChanged: (String? newValue) {
+                ref.read(selectedGameCategoryProvider.notifier).state =
+                    newValue!;
+                // إعادة تهيئة اللعبة عند تغيير الفئة
+                ref
+                    .read(matchingGameLogicProvider)
+                    .resetGameForCategory(newValue);
+              },
+              items: categories.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value == 'all'
+                      ? 'All Categories'
+                      : _formatCategoryName(value)),
+                );
+              }).toList(),
+            ),
+          );
+        }
+      },
+    );
+  }
+
   // دالة عرض الـ Game Over Dialog. الآن تستقبل BuildContext و WidgetRef
   void _showGameOverDialog(BuildContext context, WidgetRef ref) {
     final gameLogic = ref.read(matchingGameLogicProvider);
@@ -89,7 +172,10 @@ class MatchingGamePage extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                ref.read(matchingGameLogicProvider).resetGame();
+                final currentCategory = ref.read(selectedGameCategoryProvider);
+                ref
+                    .read(matchingGameLogicProvider)
+                    .resetGameForCategory(currentCategory);
               },
               child: const Text('Play Again'),
             ),

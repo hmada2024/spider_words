@@ -1,6 +1,5 @@
 // lib/widgets/matching_game_content.dart
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
@@ -11,7 +10,7 @@ import 'package:spider_words/main.dart';
 
 class MatchingGameContent extends ConsumerWidget {
   final Noun? currentNoun;
-  final List<Noun> imageOptions;
+  final List<Noun> answerOptions;
   final bool isCorrect;
   final bool isWrong;
   final int score;
@@ -20,11 +19,16 @@ class MatchingGameContent extends ConsumerWidget {
   final Function(Noun) onOptionSelected;
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
+  final bool showAudioIcon; // إضافة متغير للتحكم في عرض أيقونة الصوت
+  final bool
+      playAudioOnImageTap; // إضافة متغير للتحكم في تشغيل الصوت عند النقر على الصورة
+  final bool
+      displayImageOptions; // إضافة متغير للتحكم في عرض خيارات الإجابة كصور أم نصوص
 
   const MatchingGameContent({
     super.key,
     required this.currentNoun,
-    required this.imageOptions,
+    this.answerOptions = const [], // تعيين قيمة افتراضية
     required this.isCorrect,
     required this.isWrong,
     required this.score,
@@ -33,6 +37,10 @@ class MatchingGameContent extends ConsumerWidget {
     required this.onOptionSelected,
     required this.playCurrentNounAudio,
     required this.isInteractionDisabled,
+    this.showAudioIcon = true, // القيمة الافتراضية هي إظهار الأيقونة
+    this.playAudioOnImageTap =
+        false, // القيمة الافتراضية هي عدم التشغيل عند النقر
+    this.displayImageOptions = true, // القيمة الافتراضية هي عرض الصور
   });
 
   @override
@@ -52,10 +60,10 @@ class MatchingGameContent extends ConsumerWidget {
     }
 
     final double topInfoPadding = screenHeight * 0.02;
-    final double audioIconRadius = screenWidth * 0.12;
-    final double audioIconSize = screenWidth * 0.08;
-    final double imageOptionWidth = screenWidth * 0.4;
-    final double imageOptionHeight = screenWidth * 0.4;
+    final double imageDisplayWidth = screenWidth * 0.6;
+    final double imageDisplayHeight = screenWidth * 0.6;
+    final double optionButtonWidth = screenWidth * 0.4;
+    final double optionButtonPadding = screenWidth * 0.03;
     final double optionSpacing = screenWidth * 0.05;
     final BorderRadius borderRadius =
         BorderRadius.circular(screenWidth * AppConstants.borderRadiusRatio);
@@ -98,15 +106,34 @@ class MatchingGameContent extends ConsumerWidget {
           ),
           Padding(
             padding: EdgeInsets.only(bottom: topInfoPadding),
-            child: Center(
-              child: CircleAvatar(
-                radius: audioIconRadius,
-                backgroundColor: Colors.blue.shade100,
-                child: IconButton(
-                  icon: Icon(Icons.volume_up, size: audioIconSize),
-                  onPressed: isInteractionDisabled
-                      ? null
-                      : () => playAudio(currentNoun?.audio),
+            child: GestureDetector(
+              onTap: isInteractionDisabled
+                  ? null
+                  : (playAudioOnImageTap && currentNoun?.audio != null)
+                      ? () => playAudio(currentNoun?.audio)
+                      : null,
+              child: SizedBox(
+                width: imageDisplayWidth,
+                height: imageDisplayHeight,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    currentNoun?.image != null
+                        ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
+                        : const Icon(Icons.image_not_supported, size: 100),
+                    if (showAudioIcon)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: IconButton(
+                          icon:
+                              const Icon(Icons.volume_up, color: Colors.white),
+                          onPressed: isInteractionDisabled
+                              ? null
+                              : () => playAudio(currentNoun?.audio),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -114,47 +141,46 @@ class MatchingGameContent extends ConsumerWidget {
           SizedBox(height: bottomSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: Wrap(
-              spacing: optionSpacing,
-              runSpacing: optionSpacing,
-              alignment: WrapAlignment.center,
-              children: imageOptions.map((option) {
+            child: Column(
+              children: answerOptions.map((option) {
                 final isCorrectOption = option.id == currentNoun?.id;
                 final isAnswered = isCorrect || isWrong;
-                Color? borderColor;
+                Color? buttonColor = Colors.blue;
                 if (isAnswered) {
-                  borderColor = isCorrectOption
+                  buttonColor = isCorrectOption
                       ? AppConstants.correctColor
-                      : (option.id == currentNoun?.id
-                          ? AppConstants.correctColor
-                          : AppConstants
-                              .wrongColor); // عرض اللون الأحمر للإجابة الخاطئة
+                      : AppConstants.wrongColor;
                 }
-                return SizedBox(
-                  width: imageOptionWidth,
-                  height: imageOptionHeight,
-                  child: GestureDetector(
-                    onTap: () => onOptionSelected(option),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        border: Border.all(
-                          color: borderColor ?? Colors.transparent,
-                          width: screenWidth * 0.01,
-                        ),
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: optionButtonPadding),
+                  child: SizedBox(
+                    width: optionButtonWidth,
+                    child: ElevatedButton(
+                      onPressed: () => onOptionSelected(option),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: buttonColor,
                       ),
-                      child: ClipRRect(
-                        borderRadius: borderRadius,
-                        child: option.image != null
-                            ? Image.memory(
-                                option.image!,
-                                fit: BoxFit.cover,
-                              )
-                            : const Icon(
-                                Icons.image_not_supported,
-                                size: 50,
-                              ),
-                      ),
+                      child: displayImageOptions // عرض صور أم نصوص
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (option.image != null)
+                                  Image.memory(
+                                    option.image!,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                SizedBox(width: 8),
+                                Text(
+                                  option.name,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              option.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
                     ),
                   ),
                 );
@@ -170,7 +196,7 @@ class MatchingGameContent extends ConsumerWidget {
                   fontSize: correctTextSize,
                   fontWeight: FontWeight.bold),
             ),
-          if (isWrong) // عرض رسالة "خطأ"
+          if (isWrong)
             Text(
               'Wrong!',
               style: TextStyle(

@@ -8,7 +8,7 @@ import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
 
 class MatchingGameLogic extends ChangeNotifier {
-  final List<Noun> initialNouns;
+  List<Noun> initialNouns;
   final AudioPlayer audioPlayer;
   List<Noun> _nouns = [];
   Noun? _currentNoun;
@@ -18,10 +18,11 @@ class MatchingGameLogic extends ChangeNotifier {
   int _score = 0;
   int _answeredQuestions = 0;
   bool _isInteractionDisabled = false;
+  int _totalQuestions = 0; // إضافة متغير لعدد الأسئلة الكلية
 
   int get score => _score;
   int get answeredQuestions => _answeredQuestions;
-  int get totalQuestions => initialNouns.length;
+  int get totalQuestions => _totalQuestions;
   Noun? get currentNoun => _currentNoun;
   List<Noun> get imageOptions => _imageOptions;
   bool get isCorrect => _isCorrect;
@@ -32,8 +33,14 @@ class MatchingGameLogic extends ChangeNotifier {
     _startNewGame();
   }
 
+  void setTotalQuestions(int count) {
+    _totalQuestions = count;
+    notifyListeners();
+  }
+
   void _startNewGame() {
     _nouns = List<Noun>.from(initialNouns)..shuffle();
+    _totalQuestions = initialNouns.length;
     _nextQuestion();
   }
 
@@ -127,6 +134,20 @@ class MatchingGameLogic extends ChangeNotifier {
     _score = 0;
     _answeredQuestions = 0;
     _startNewGame(); // إعادة بدء اللعبة
+    notifyListeners();
+  }
+
+  void resetGameForCategory(String category) {
+    if (category == 'all') {
+      _nouns = List<Noun>.from(initialNouns)..shuffle();
+    } else {
+      _nouns = initialNouns.where((noun) => noun.category == category).toList()
+        ..shuffle();
+    }
+    _score = 0;
+    _answeredQuestions = 0;
+    _totalQuestions = _nouns.length;
+    _nextQuestion();
     notifyListeners();
   }
 }

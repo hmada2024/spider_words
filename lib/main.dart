@@ -6,6 +6,7 @@ import 'package:spider_words/pages/compound_words_page.dart';
 import 'package:spider_words/pages/home_page.dart';
 import 'package:spider_words/pages/nouns_page.dart';
 import 'package:spider_words/pages/matching_game_page.dart';
+import 'package:spider_words/pages/audio_image_matching_game_page.dart'; // استيراد الصفحة الجديدة
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -57,6 +58,8 @@ class MyApp extends StatelessWidget {
         CompoundWordsPage.routeName: (context) => const CompoundWordsPage(),
         MatchingGamePage.routeName: (context) =>
             const MatchingGamePage(), // إضافة مسار صفحة لعبة المطابقة
+        AudioImageMatchingGamePage.routeName: (context) =>
+            const AudioImageMatchingGamePage(), // إضافة مسار الصفحة الجديدة
       },
     );
   }
