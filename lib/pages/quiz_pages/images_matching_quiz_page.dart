@@ -54,7 +54,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Matching Game',
+        title: 'Images Matching Quiz',
         actions: [
           _buildCategoryDropdown(ref, context),
         ],
