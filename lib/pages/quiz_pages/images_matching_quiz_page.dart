@@ -134,7 +134,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
                     newValue!;
                 ref
                     .read(matchingGameLogicProvider)
-                    .resetGameForCategory(newValue);
+                    .resetQuizForCategory(newValue);
               },
               items: categories.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
@@ -168,7 +168,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
                 final currentCategory = ref.read(selectedGameCategoryProvider);
                 ref
                     .read(matchingGameLogicProvider)
-                    .resetGameForCategory(currentCategory);
+                    .resetQuizForCategory(currentCategory);
               },
               child: const Text('Play Again'),
             ),

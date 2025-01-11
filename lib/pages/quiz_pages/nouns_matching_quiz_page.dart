@@ -10,7 +10,7 @@ import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_content.da
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_logic.dart';
 
-final nounsForAudioImageGameProvider = FutureProvider.autoDispose
+final nounsForAudioImageQuizProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
   if (category == 'all') {
@@ -20,14 +20,14 @@ final nounsForAudioImageGameProvider = FutureProvider.autoDispose
   }
 });
 
-final selectedAudioImageGameCategoryProvider =
+final selectedAudioImageQuizCategoryProvider =
     StateProvider<String>((ref) => 'all');
 
-final audioImageMatchingGameLogicProvider =
+final audioImageMatchingQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<NounsMatchingQuizLogic>((ref) {
-  final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
+  final selectedCategory = ref.watch(selectedAudioImageQuizCategoryProvider);
   final nouns =
-      ref.watch(nounsForAudioImageGameProvider(selectedCategory)).maybeWhen(
+      ref.watch(nounsForAudioImageQuizProvider(selectedCategory)).maybeWhen(
             data: (data) => data,
             orElse: () => [],
           ) as List<Noun>;
@@ -49,9 +49,9 @@ class NounsMatchingQuizPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
+    final selectedCategory = ref.watch(selectedAudioImageQuizCategoryProvider);
     final nounsState =
-        ref.watch(nounsForAudioImageGameProvider(selectedCategory));
+        ref.watch(nounsForAudioImageQuizProvider(selectedCategory));
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -67,37 +67,37 @@ class NounsMatchingQuizPage extends ConsumerWidget {
           data: (nouns) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (ref
-                      .read(audioImageMatchingGameLogicProvider)
+                      .read(audioImageMatchingQuizLogicProvider)
                       .totalQuestions !=
                   nouns.length) {
                 ref
-                    .read(audioImageMatchingGameLogicProvider)
+                    .read(audioImageMatchingQuizLogicProvider)
                     .setTotalQuestions(nouns.length);
               }
             });
 
             return NounsMatchingQuizContent(
               currentNoun:
-                  ref.watch(audioImageMatchingGameLogicProvider).currentNoun,
+                  ref.watch(audioImageMatchingQuizLogicProvider).currentNoun,
               answerOptions:
-                  ref.watch(audioImageMatchingGameLogicProvider).answerOptions,
+                  ref.watch(audioImageMatchingQuizLogicProvider).answerOptions,
               isCorrect:
-                  ref.watch(audioImageMatchingGameLogicProvider).isCorrect,
-              isWrong: ref.watch(audioImageMatchingGameLogicProvider).isWrong,
-              score: ref.watch(audioImageMatchingGameLogicProvider).score,
+                  ref.watch(audioImageMatchingQuizLogicProvider).isCorrect,
+              isWrong: ref.watch(audioImageMatchingQuizLogicProvider).isWrong,
+              score: ref.watch(audioImageMatchingQuizLogicProvider).score,
               answeredQuestions: ref
-                  .watch(audioImageMatchingGameLogicProvider)
+                  .watch(audioImageMatchingQuizLogicProvider)
                   .answeredQuestions,
               totalQuestions:
-                  ref.watch(audioImageMatchingGameLogicProvider).totalQuestions,
+                  ref.watch(audioImageMatchingQuizLogicProvider).totalQuestions,
               onOptionSelected: (noun) => ref
-                  .read(audioImageMatchingGameLogicProvider)
+                  .read(audioImageMatchingQuizLogicProvider)
                   .checkAnswer(noun),
               playCurrentNounAudio: () => ref
-                  .read(audioImageMatchingGameLogicProvider)
+                  .read(audioImageMatchingQuizLogicProvider)
                   .playCurrentNounAudio(),
               isInteractionDisabled: ref
-                  .watch(audioImageMatchingGameLogicProvider)
+                  .watch(audioImageMatchingQuizLogicProvider)
                   .isInteractionDisabled,
             );
           },
@@ -132,7 +132,7 @@ class NounsMatchingQuizPage extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
-              value: ref.watch(selectedAudioImageGameCategoryProvider),
+              value: ref.watch(selectedAudioImageQuizCategoryProvider),
               underline: Container(),
               icon: Icon(Icons.arrow_drop_down,
                   color: Colors.white, size: dropdownIconSize),
@@ -141,11 +141,11 @@ class NounsMatchingQuizPage extends ConsumerWidget {
                   color: Colors.white, fontWeight: FontWeight.bold),
               onChanged: (String? newValue) {
                 ref
-                    .read(selectedAudioImageGameCategoryProvider.notifier)
+                    .read(selectedAudioImageQuizCategoryProvider.notifier)
                     .state = newValue!;
                 ref
-                    .read(audioImageMatchingGameLogicProvider)
-                    .resetGameForCategory(newValue);
+                    .read(audioImageMatchingQuizLogicProvider)
+                    .resetQuizForCategory(newValue);
               },
               items: categories.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
@@ -163,7 +163,7 @@ class NounsMatchingQuizPage extends ConsumerWidget {
   }
 
   void _showGameOverDialog(BuildContext context, WidgetRef ref) {
-    final gameLogic = ref.read(audioImageMatchingGameLogicProvider);
+    final gameLogic = ref.read(audioImageMatchingQuizLogicProvider);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -177,10 +177,10 @@ class NounsMatchingQuizPage extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(context).pop();
                 final currentCategory =
-                    ref.read(selectedAudioImageGameCategoryProvider);
+                    ref.read(selectedAudioImageQuizCategoryProvider);
                 ref
-                    .read(audioImageMatchingGameLogicProvider)
-                    .resetGameForCategory(currentCategory);
+                    .read(audioImageMatchingQuizLogicProvider)
+                    .resetQuizForCategory(currentCategory);
               },
               child: const Text('Play Again'),
             ),

@@ -31,7 +31,7 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
 
   ImagesMatchingQuizLogic(
       {required this.initialNouns, required this.audioPlayer}) {
-    _startNewGame();
+    _startNewQuiz();
   }
 
   void setTotalQuestions(int count) {
@@ -39,7 +39,7 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _startNewGame() {
+  void _startNewQuiz() {
     _nouns = List<Noun>.from(initialNouns)..shuffle();
     _totalQuestions = initialNouns.length;
     _nextQuestion();
@@ -131,14 +131,14 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
     }
   }
 
-  void resetGame() {
+  void resetQuiz() {
     _score = 0;
     _answeredQuestions = 0;
-    _startNewGame(); // إعادة بدء اللعبة
+    _startNewQuiz(); // إعادة بدء اللعبة
     notifyListeners();
   }
 
-  void resetGameForCategory(String category) {
+  void resetQuizForCategory(String category) {
     if (category == 'all') {
       _nouns = List<Noun>.from(initialNouns)..shuffle();
     } else {

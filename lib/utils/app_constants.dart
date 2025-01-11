@@ -5,7 +5,7 @@ class AppConstants {
   // General
   static const double borderRadiusRatio = 0.03;
 
-  // Matching Game
+  // Matching Quiz
   static const Color correctColor = Colors.green;
   static const Color wrongColor = Colors.redAccent;
   static const String correctAnswerSound = 'sounds/correct.mp3';
