@@ -18,15 +18,14 @@ final nounsForGameProvider = FutureProvider.autoDispose
   if (category == 'all') {
     return dbHelper.getNounsForMatchingGame();
   } else {
-    return dbHelper.getNounsByCategory(
-        category); // استخدام الدالة الجديدة لجلب الأسماء حسب الفئة
+    return dbHelper.getNounsByCategory(category);
   }
 });
 
 // تعريف Provider للفئة المختارة في لعبة المطابقة
 final selectedGameCategoryProvider = StateProvider<String>((ref) => 'all');
 
-// تعريف Provider لـ MatchingGameLogic. نستخدم ChangeNotifierProvider لأنه MatchingGameLogic يرث من ChangeNotifier
+// تعريف Provider لـ MatchingGameLogic
 final matchingGameLogicProvider =
     ChangeNotifierProvider.autoDispose<MatchingGameLogic>((ref) {
   final selectedCategory = ref.watch(selectedGameCategoryProvider);
@@ -38,7 +37,6 @@ final matchingGameLogicProvider =
   return MatchingGameLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-// تغيير StatelessWidget إلى ConsumerWidget لاستخدام Riverpod
 class MatchingGamePage extends ConsumerWidget {
   static const routeName = '/matching_game';
 
@@ -53,7 +51,6 @@ class MatchingGamePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // قراءة حالة تحميل الأسماء
     final selectedCategory = ref.watch(selectedGameCategoryProvider);
     final nounsState = ref.watch(nounsForGameProvider(selectedCategory));
 
@@ -61,7 +58,7 @@ class MatchingGamePage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Matching Game',
         actions: [
-          _buildCategoryDropdown(ref),
+          _buildCategoryDropdown(ref, context), // تم تعديل هذه السطر
         ],
       ),
       body: CustomGradient(
@@ -69,7 +66,6 @@ class MatchingGamePage extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
           data: (nouns) {
-            // تحديث عدد الأسئلة الكلية بناءً على عدد العناصر في قائمة الأسماء
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (ref.read(matchingGameLogicProvider).totalQuestions !=
                   nouns.length) {
@@ -81,7 +77,9 @@ class MatchingGamePage extends ConsumerWidget {
 
             return MatchingGameContent(
               currentNoun: ref.watch(matchingGameLogicProvider).currentNoun,
-              imageOptions: ref.watch(matchingGameLogicProvider).imageOptions,
+              answerOptions: ref
+                  .watch(matchingGameLogicProvider)
+                  .imageOptions, // تم تعديل هذه السطر
               isCorrect: ref.watch(matchingGameLogicProvider).isCorrect,
               isWrong: ref.watch(matchingGameLogicProvider).isWrong,
               score: ref.watch(matchingGameLogicProvider).score,
@@ -107,7 +105,8 @@ class MatchingGamePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryDropdown(WidgetRef ref) {
+  Widget _buildCategoryDropdown(WidgetRef ref, BuildContext context) {
+    // تم تعديل هذه السطر
     final screenWidth = MediaQuery.of(context).size.width;
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 
@@ -138,7 +137,6 @@ class MatchingGamePage extends ConsumerWidget {
               onChanged: (String? newValue) {
                 ref.read(selectedGameCategoryProvider.notifier).state =
                     newValue!;
-                // إعادة تهيئة اللعبة عند تغيير الفئة
                 ref
                     .read(matchingGameLogicProvider)
                     .resetGameForCategory(newValue);
@@ -158,7 +156,6 @@ class MatchingGamePage extends ConsumerWidget {
     );
   }
 
-  // دالة عرض الـ Game Over Dialog. الآن تستقبل BuildContext و WidgetRef
   void _showGameOverDialog(BuildContext context, WidgetRef ref) {
     final gameLogic = ref.read(matchingGameLogicProvider);
     showDialog(

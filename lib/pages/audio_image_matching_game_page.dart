@@ -11,7 +11,6 @@ import 'package:spider_words/widgets/audio_image_matching_game_content.dart';
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/audio_image_matching_game_logic.dart';
 
-// تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
 final nounsForAudioImageGameProvider = FutureProvider.autoDispose
     .family<List<Noun>, String>((ref, category) async {
   final dbHelper = ref.read(databaseHelperProvider);
@@ -22,11 +21,9 @@ final nounsForAudioImageGameProvider = FutureProvider.autoDispose
   }
 });
 
-// تعريف Provider للفئة المختارة في لعبة الصورة والصوت
 final selectedAudioImageGameCategoryProvider =
     StateProvider<String>((ref) => 'all');
 
-// تعريف Provider لـ AudioImageMatchingGameLogic
 final audioImageMatchingGameLogicProvider =
     ChangeNotifierProvider.autoDispose<AudioImageMatchingGameLogic>((ref) {
   final selectedCategory = ref.watch(selectedAudioImageGameCategoryProvider);
@@ -62,7 +59,7 @@ class AudioImageMatchingGamePage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Image & Audio Match',
         actions: [
-          _buildCategoryDropdown(ref),
+          _buildCategoryDropdown(ref, context), // تم تعديل هذه السطر
         ],
       ),
       body: CustomGradient(
@@ -116,7 +113,8 @@ class AudioImageMatchingGamePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryDropdown(WidgetRef ref) {
+  Widget _buildCategoryDropdown(WidgetRef ref, BuildContext context) {
+    // تم تعديل هذه السطر
     final screenWidth = MediaQuery.of(context).size.width;
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 
