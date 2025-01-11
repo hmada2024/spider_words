@@ -55,7 +55,7 @@ class NounsMatchingQuizPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Image & Audio Match',
+        title: 'Nouns Matching Quiz',
         actions: [
           _buildCategoryDropdown(ref, context),
         ],
