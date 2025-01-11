@@ -1,0 +1,161 @@
+هام لمعرفه التطبيق
+
+هيكل التطبيق (المخطط)
+lib/
+├── data/
+│   └── database_helper.dart
+├── models/
+│   ├── adjective_model.dart
+│   ├── compound_word_model.dart
+│   └── nouns_model.dart
+├── pages/
+│   ├── common_pages/
+│   │   └── home_page.dart
+│   ├── vocabulary_pages/
+│   │   ├── adjectives_page.dart
+│   │   ├── compound_words_page.dart
+│   │   └── nouns_page.dart
+│   └── quiz_pages/
+│       ├── images_matching_quiz_page.dart
+│       └── nouns_matching_quiz_page.dart
+├── utils/
+│   ├── app_constants.dart
+│   ├── constants.dart
+│   └── screen_utils.dart
+├── widgets/
+│   ├── common_widgets/
+│   │   ├── custom_app_bar.dart
+│   │   ├── custom_gradient.dart
+│   │   └── custom_home_button.dart
+│   ├── quiz_widgets/
+│   │   ├── images_matching_quiz_content.dart
+│   │   ├── images_matching_quiz_logic.dart
+│   │   ├── nouns_matching_quiz_content.dart
+│   │   └── nouns_matching_quiz_logic.dart
+│   └── vocabulary_widgets/
+│       ├── adjective_card.dart
+│       ├── adjective_list.dart
+│       ├── compound_word_card.dart
+│       ├── noun_item.dart
+│       └── noun_list.dart
+└── main.dart
+
+
+
+وصف شامل للتطبيق:
+التطبيق هو "Spider Words"، وهو تطبيق لتعلم المفردات الإنجليزية من خلال تصنيفات مختلفة مثل الصفات (Adjectives)، الأسماء (Nouns)، والكلمات المركبة (Compound Words). التطبيق يوفر واجهة تفاعلية تسمح للمستخدمين بتعلم المفردات من خلال الاستماع إلى النطق الصحيح، رؤية الصور المرتبطة بالكلمات، والتفاعل مع الاختبارات التي تساعد على تثبيت المعلومات.
+
+المميزات الرئيسية:
+تعلم المفردات:
+
+يمكن للمستخدم تصفح المفردات حسب التصنيفات المختلفة مثل الحيوانات، الفواكه، الخضروات، الأدوات المنزلية، وغيرها.
+
+كل كلمة مرتبطة بصوت وصورة لتسهيل عملية التعلم.
+
+الاختبارات التفاعلية:
+
+يوجد نوعان من الاختبارات:
+
+اختبار مطابقة الصور: حيث يتم عرض صورة ويجب على المستخدم اختيار الكلمة الصحيحة من بين الخيارات.
+
+اختبار مطابقة الأسماء: حيث يتم عرض اسم الكلمة ويجب على المستخدم اختيار الصورة الصحيحة من بين الخيارات.
+
+يتم تتبع النتائج وعرضها للمستخدم بعد الانتهاء من الاختبار.
+
+واجهة مستخدم تفاعلية:
+
+التطبيق يستخدم تصميمًا تفاعليًا مع رسوميات متحركة (Animations) لتحسين تجربة المستخدم.
+
+يتم عرض الكلمات والصور بشكل بطاقات (Cards) مع إمكانية الاستماع إلى النطق الصحيح للكلمة.
+
+وصف قاعدة البيانات:
+قاعدة البيانات المستخدمة في التطبيق هي SQLite، وتحتوي على عدة جداول لتخزين البيانات الخاصة بالمفردات والاختبارات. قاعدة البيانات مخزنة في ملف nouns.db، ويتم نسخها من ملف موجود في مجلد assets عند أول تشغيل للتطبيق.
+
+الجداول الرئيسية في قاعدة البيانات:
+جدول الأسماء (Nouns):
+
+يحتوي على الأسماء (Nouns) مثل الحيوانات، الفواكه، الخضروات، وغيرها.
+
+الأعمدة: id, name, image, audio, category.
+
+جدول الصفات (Adjectives):
+
+يحتوي على الصفات (Adjectives) مع أمثلة ونطق لكل صفة.
+
+الأعمدة: id, main_adjective, main_example, reverse_adjective, reverse_example, main_adjective_audio, reverse_adjective_audio, main_example_audio, reverse_example_audio.
+
+جدول الكلمات المركبة (Compound Words):
+
+يحتوي على الكلمات المركبة مع أمثلة ونطق.
+
+الأعمدة: id, main, part1, part2, example, main_audio, example_audio.
+
+جدول الأصول الافتراضية (Default Assets):
+
+يحتوي على الأصول الافتراضية مثل الصور والأصوات.
+
+الأعمدة: id, category, image, audio.
+
+وصف مهام الملفات الرئيسية:
+database_helper.dart:
+
+المهمة: إدارة الاتصال بقاعدة البيانات واسترجاع البيانات منها.
+
+يحتوي على دوال لاسترجاع البيانات من الجداول المختلفة مثل getAdjectives، getNouns، getCompoundWords، وغيرها.
+
+يتم استخدام sqflite للتعامل مع قاعدة البيانات.
+
+main.dart:
+
+المهمة: نقطة بدء التطبيق وتكوين واجهة المستخدم الرئيسية.
+
+يتم تعريف ProviderScope لإدارة الحالة في التطبيق.
+
+يتم تعريف المسارات (Routes) للصفحات المختلفة مثل الصفحة الرئيسية، صفحة الصفات، صفحة الأسماء، وغيرها.
+
+adjectives_page.dart:
+
+المهمة: عرض قائمة بالصفات (Adjectives) مع إمكانية الاستماع إلى النطق الصحيح.
+
+يتم استخدام FutureProvider لجلب البيانات من قاعدة البيانات.
+
+nouns_page.dart:
+
+المهمة: عرض قائمة بالأسماء (Nouns) حسب التصنيفات المختلفة.
+
+يتم استخدام FutureProvider.family لجلب البيانات حسب التصنيف المحدد.
+
+compound_words_page.dart:
+
+المهمة: عرض قائمة بالكلمات المركبة (Compound Words) مع إمكانية الاستماع إلى النطق الصحيح.
+
+images_matching_quiz_page.dart:
+
+المهمة: عرض اختبار مطابقة الصور حيث يتم عرض صورة ويجب على المستخدم اختيار الكلمة الصحيحة.
+
+يتم استخدام ChangeNotifierProvider لإدارة حالة الاختبار.
+
+nouns_matching_quiz_page.dart:
+
+المهمة: عرض اختبار مطابقة الأسماء حيث يتم عرض اسم الكلمة ويجب على المستخدم اختيار الصورة الصحيحة.
+
+يتم استخدام ChangeNotifierProvider لإدارة حالة الاختبار.
+
+adjective_card.dart:
+
+المهمة: عرض بطاقة تفاعلية للصفة (Adjective) مع إمكانية الاستماع إلى النطق الصحيح.
+
+يتم استخدام AnimationController لإضافة حركات تفاعلية.
+
+noun_item.dart:
+
+المهمة: عرض بطاقة تفاعلية للاسم (Noun) مع إمكانية الاستماع إلى النطق الصحيح.
+
+يتم استخدام AnimationController لإضافة حركات تفاعلية.
+
+compound_word_card.dart:
+
+المهمة: عرض بطاقة تفاعلية للكلمة المركبة (Compound Word) مع إمكانية الاستماع إلى النطق الصحيح.
+
+يتم استخدام AnimationController لإضافة حركات تفاعلية.
+
