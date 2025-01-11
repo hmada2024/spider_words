@@ -47,3 +47,42 @@
 5. قم بفتح طلب سحب (Pull Request) مع وصف للتغييرات التي أجريتها.
 
 سنقوم بمراجعة طلب السحب ودمجه إذا كان مناسبًا.
+
+lib/
+├── data/
+│   └── database_helper.dart
+├── models/
+│   ├── adjective_model.dart
+│   ├── compound_word_model.dart
+│   └── nouns_model.dart
+├── pages/
+│   ├── common_pages/
+│   │   └── home_page.dart
+│   ├── vocabulary_pages/
+│   │   ├── adjectives_page.dart
+│   │   ├── compound_words_page.dart
+│   │   └── nouns_page.dart
+│   └── quiz_pages/
+│       ├── images_matching_quiz_page.dart
+│       └── nouns_matching_quiz_page.dart
+├── utils/
+│   ├── app_constants.dart
+│   ├── constants.dart
+│   └── screen_utils.dart
+├── widgets/
+│   ├── common_widgets/
+│   │   ├── custom_app_bar.dart
+│   │   ├── custom_gradient.dart
+│   │   └── custom_home_button.dart
+│   ├── quiz_widgets/
+│   │   ├── images_matching_quiz_content.dart
+│   │   ├── images_matching_quiz_logic.dart
+│   │   ├── nouns_matching_quiz_content.dart
+│   │   └── nouns_matching_quiz_logic.dart
+│   └── vocabulary_widgets/
+│       ├── adjective_card.dart
+│       ├── adjective_list.dart
+│       ├── compound_word_card.dart
+│       ├── noun_item.dart
+│       └── noun_list.dart
+└── main.dart
