@@ -6,6 +6,7 @@ import 'package:spider_words/utils/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
+import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart'; // هذا السطر تم اضافته
 
 class ImagesMatchingQuizContent extends ConsumerWidget {
   final Noun? currentNoun;
@@ -16,7 +17,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
   final int answeredQuestions;
   final int totalQuestions;
   final Function(Noun) onOptionSelected;
-  final VoidCallback playCurrentNounAudio; // <-- هذا المتغير
+  final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
 
   const ImagesMatchingQuizContent({
@@ -75,7 +76,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
     final double wordAreaPaddingHorizontal = screenWidth * 0.03;
 
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.03), // هوامش متناسبة
+      padding: EdgeInsets.all(screenWidth * 0.03),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
@@ -195,7 +196,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                       child: option.image != null
                           ? Image.memory(
                               option.image!,
-                              fit: BoxFit.cover, // تغطية المساحة
+                              fit: BoxFit.cover,
                             )
                           : const Icon(Icons.image_not_supported, size: 50),
                     ),
@@ -204,27 +205,10 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               }).toList(),
             ),
           ),
-          if (isCorrect)
-            Padding(
-              padding: EdgeInsets.only(top: optionSpacing),
-              child: Text(
-                'Correct!',
-                style: TextStyle(
-                    color: AppConstants.correctColor,
-                    fontSize: correctTextSize,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          if (isWrong)
-            Padding(
-              padding: EdgeInsets.only(top: optionSpacing),
-              child: Text(
-                'Wrong!',
-                style: TextStyle(
-                    color: AppConstants.wrongColor,
-                    fontSize: correctTextSize,
-                    fontWeight: FontWeight.bold),
-              ),
+          if (isCorrect || isWrong) // تم التعديل هنا
+            CorrectWrongMessage(
+              isCorrect: isCorrect,
+              correctTextSize: correctTextSize,
             ),
         ],
       ),
