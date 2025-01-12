@@ -66,8 +66,6 @@ class NounsMatchingQuizContent extends ConsumerWidget {
         0.05; // Font size for the "Correct" message, relative to screen width.
     final double borderRadius = screenWidth *
         0.02; // Border radius for buttons and image container, relative to screen width.
-    final double imageWidth = screenWidth *
-        0.7; // The original value. This variable is not directly used in the `Image.memory` widget for setting the width. The image's width is implicitly determined by its parent `Container`'s width and the `fit: BoxFit.contain` property.
     final double buttonFontSize = screenWidth *
         0.038; // Font size for the text on the answer option buttons, relative to screen width.
     final double buttonPaddingVertical = screenHeight *
@@ -119,34 +117,49 @@ class NounsMatchingQuizContent extends ConsumerWidget {
             ),
           ),
           Center(
-            child: GestureDetector(
-              onTap: isInteractionDisabled
-                  ? null
-                  : () => playAudio(currentNoun?.audio),
-              child: Container(
-                width: screenWidth *
-                    0.44, // Width of the image container, relative to screen width.
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 1),
-                      spreadRadius: 1,
-                      blurRadius: imageShadowBlurRadius,
-                      offset: Offset(imageShadowOffset, imageShadowOffset),
+            child: Stack(
+              // Wrap with Stack
+              children: [
+                GestureDetector(
+                  onTap: isInteractionDisabled
+                      ? null
+                      : () => playAudio(currentNoun?.audio),
+                  child: Container(
+                    width: screenWidth *
+                        0.44, // Width of the image container, relative to screen width.
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 1),
+                          spreadRadius: 1,
+                          blurRadius: imageShadowBlurRadius,
+                          offset: Offset(imageShadowOffset, imageShadowOffset),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      child: currentNoun?.image != null
+                          ? Image.memory(
+                              currentNoun!.image!,
+                              fit: BoxFit.contain,
+                            )
+                          : const Icon(Icons.image_not_supported, size: 50),
+                    ),
+                  ),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  child: currentNoun?.image != null
-                      ? Image.memory(
-                          currentNoun!.image!,
-                          fit: BoxFit.contain,
-                        )
-                      : const Icon(Icons.image_not_supported, size: 50),
+                Positioned(
+                  // Position the icon
+                  top: 5,
+                  right: 5,
+                  child: Icon(
+                    Icons.volume_up,
+                    color: Colors.blue,
+                    size: screenWidth * 0.06, // Adjust size as needed
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           SizedBox(
@@ -175,10 +188,11 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.grey.withValues(alpha: 1),
+                          color: const Color.fromARGB(255, 6, 0, 0)
+                              .withValues(alpha: 3),
                           spreadRadius: 1,
                           blurRadius: 3,
-                          offset: const Offset(0, 2)),
+                          offset: const Offset(2, 2)),
                     ],
                   ),
                   child: ElevatedButton(
