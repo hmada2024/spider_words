@@ -52,21 +52,18 @@ class NounsMatchingQuizContent extends ConsumerWidget {
     }
 
     final double topInfoPadding = screenHeight * 0.02;
-    final double imageDisplayWidth = screenWidth * 0.6;
-    final double imageDisplayHeight = screenWidth * 0.6;
+    final double questionImageWidth = screenWidth * 0.3;
+    final double questionImageHeight = screenWidth * 0.3;
     final double optionButtonWidth = screenWidth * 0.4;
-    final double optionButtonPadding = screenWidth * 0.03;
-    final double optionSpacing = screenWidth * 0.05;
-    // ignore: unused_local_variable
-    final BorderRadius borderRadius =
-        BorderRadius.circular(screenWidth * AppConstants.borderRadiusRatio);
+    final double optionButtonPadding = screenWidth * 0.02;
+    final double optionSpacing = screenWidth * 0.03;
     final double bottomSpacing = screenHeight * 0.02;
     final double correctTextSize = screenWidth * 0.06;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(screenWidth * 0.05),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(bottom: topInfoPadding),
@@ -97,25 +94,46 @@ class NounsMatchingQuizContent extends ConsumerWidget {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(bottom: topInfoPadding),
-            child: GestureDetector(
-              onTap: isInteractionDisabled
-                  ? null
-                  : () => playAudio(currentNoun?.audio),
-              child: SizedBox(
-                width: imageDisplayWidth,
-                height: imageDisplayHeight,
-                child: currentNoun?.image != null
-                    ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
-                    : const Icon(Icons.image_not_supported, size: 100),
+          GestureDetector(
+            onTap: isInteractionDisabled
+                ? null
+                : () => playAudio(currentNoun?.audio),
+            child: Container(
+              padding: EdgeInsets.all(screenWidth * 0.02),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey.shade200,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: questionImageWidth,
+                    height: questionImageHeight,
+                    child: currentNoun?.image != null
+                        ? Image.memory(currentNoun!.image!, fit: BoxFit.cover)
+                        : const Icon(Icons.image_not_supported, size: 50),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.volume_up, color: Colors.blue.shade700),
+                    onPressed: isInteractionDisabled
+                        ? null
+                        : () => playAudio(currentNoun?.audio),
+                  ),
+                ],
               ),
             ),
           ),
           SizedBox(height: bottomSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: Column(
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              childAspectRatio: 3, // Adjust as needed for text buttons
+              crossAxisSpacing: optionSpacing,
+              mainAxisSpacing: optionSpacing,
               children: answerOptions.map((option) {
                 final isCorrectOption = option.id == currentNoun?.id;
                 final isAnswered = isCorrect || isWrong;
@@ -123,23 +141,25 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                 if (isAnswered) {
                   buttonColor = isCorrectOption
                       ? AppConstants.correctColor
-                      : (option.id == currentNoun?.id
-                          ? AppConstants.correctColor
-                          : AppConstants.wrongColor);
+                      : AppConstants.wrongColor;
                 }
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: optionButtonPadding),
-                  child: SizedBox(
-                    width: optionButtonWidth,
-                    child: ElevatedButton(
-                      onPressed: () => onOptionSelected(option),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
+                return SizedBox(
+                  width: optionButtonWidth,
+                  child: ElevatedButton(
+                    onPressed: () => onOptionSelected(option),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: buttonColor,
+                      padding:
+                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        option.name,
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                    ),
+                    child: Text(
+                      option.name,
+                      style: TextStyle(fontSize: screenWidth * 0.04),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 );
