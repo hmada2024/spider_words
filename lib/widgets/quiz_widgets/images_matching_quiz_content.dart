@@ -16,7 +16,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
   final int answeredQuestions;
   final int totalQuestions;
   final Function(Noun) onOptionSelected;
-  final VoidCallback playCurrentNounAudio;
+  final VoidCallback playCurrentNounAudio; // <-- هذا المتغير
   final bool isInteractionDisabled;
 
   const ImagesMatchingQuizContent({
@@ -54,6 +54,14 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
         await audioPlayer.play(AssetSource('sounds/correct.mp3'));
       } catch (e) {
         debugPrint('Error playing correct sound: $e');
+      }
+    }
+
+    Future<void> playWrongSound() async {
+      try {
+        await audioPlayer.play(AssetSource('sounds/wrong.mp3'));
+      } catch (e) {
+        debugPrint('Error playing wrong sound: $e');
       }
     }
 
@@ -169,9 +177,10 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       onOptionSelected(option);
-                      if (isCorrectOption) {
-                        // تشغيل صوت الإجابة الصحيحة فقط هنا
+                      if (isCorrect) {
                         playCorrectSound();
+                      } else if (isWrong) {
+                        playWrongSound();
                       }
                     },
                     style: ElevatedButton.styleFrom(
