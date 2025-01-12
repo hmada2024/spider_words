@@ -49,6 +49,14 @@ class NounsMatchingQuizContent extends ConsumerWidget {
       }
     }
 
+    Future<void> playCorrectSound() async {
+      try {
+        await audioPlayer.play(AssetSource('sounds/correct.mp3'));
+      } catch (e) {
+        debugPrint('Error playing correct sound: $e');
+      }
+    }
+
     // تحديد النسب المئوية والأحجام بناءً على أبعاد الشاشة
     final double topInfoPadding = screenHeight * 0.015;
     final double optionSpacing = screenWidth * 0.02;
@@ -172,7 +180,13 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: () => onOptionSelected(option),
+                    onPressed: () {
+                      onOptionSelected(option);
+                      // تأكد من أن هذا الشرط صحيح ويتم تحديث isCorrect بشكل صحيح
+                      if (isCorrect) {
+                        playCorrectSound();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: buttonColor,
