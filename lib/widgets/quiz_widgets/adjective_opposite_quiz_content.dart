@@ -5,6 +5,7 @@ import 'package:spider_words/models/adjective_model.dart';
 import 'package:spider_words/pages/quiz_pages/adjective_opposite_quiz_page.dart';
 import 'package:spider_words/utils/app_constants.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
+import 'package:flutter_markdown/flutter_markdown.dart'; // استيراد مكتبة flutter_markdown
 
 class AdjectiveOppositeQuizContent extends ConsumerStatefulWidget {
   const AdjectiveOppositeQuizContent({super.key});
@@ -26,6 +27,23 @@ class AdjectiveOppositeQuizContentState
     super.dispose();
   }
 
+  // دالة مساعدة لتنسيق المثال وتمييز الكلمة بين **
+  Widget _formatExample(String? example, BuildContext context) {
+    if (example == null) {
+      return const Text('');
+    }
+
+    return MarkdownBody(
+      data: example,
+      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+        strong:
+            const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+        em: const TextStyle(fontStyle: FontStyle.italic),
+        textAlign: WrapAlignment.center,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logic = ref.watch(adjectiveOppositeQuizLogicProvider);
@@ -42,6 +60,7 @@ class AdjectiveOppositeQuizContentState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // معلومات عن الاختبار (العدد الكلي، الصحيح، المجاب)
           Padding(
             padding: EdgeInsets.only(bottom: screenHeight * 0.02),
             child: Column(
@@ -71,6 +90,7 @@ class AdjectiveOppositeQuizContentState
               ],
             ),
           ),
+          // عرض الصفة الرئيسية مع زر تشغيل الصوت
           GestureDetector(
             onTap: logic.isInteractionDisabled
                 ? null
@@ -100,15 +120,12 @@ class AdjectiveOppositeQuizContentState
               ),
             ),
           ),
+          // عرض مثال الصفة الرئيسية (مع تمييز الكلمة بين النجوم)
           Padding(
             padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-            child: Text(
-              logic.currentAdjective?.mainExample ?? '',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: screenWidth * 0.045, fontStyle: FontStyle.italic),
-            ),
+            child: _formatExample(logic.currentAdjective?.mainExample, context),
           ),
+          // شبكة خيارات الإجابة
           IgnorePointer(
             ignoring: logic.isInteractionDisabled,
             child: GridView.count(
@@ -157,9 +174,12 @@ class AdjectiveOppositeQuizContentState
               }).toList(),
             ),
           ),
+          // عرض مثال الإجابة الصحيحة مع حركة SlideTransition
           if (logic.isCorrect &&
               logic.selectedAnswer == logic.currentAdjective?.reverseAdjective)
-            _buildCorrectAnswerAnimation(logic.currentAdjective!),
+            if (logic.currentAdjective != null)
+              _buildCorrectAnswerAnimation(logic.currentAdjective!, context),
+          // رسالة إظهار إذا كانت الإجابة صحيحة أو خاطئة
           if (logic.isCorrect || logic.isWrong)
             CorrectWrongMessage(
                 isCorrect: logic.isCorrect, correctTextSize: correctTextSize),
@@ -168,7 +188,9 @@ class AdjectiveOppositeQuizContentState
     );
   }
 
-  Widget _buildCorrectAnswerAnimation(Adjective currentAdjective) {
+  // بناء حركة عرض الإجابة الصحيحة
+  Widget _buildCorrectAnswerAnimation(
+      Adjective currentAdjective, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -207,13 +229,8 @@ class AdjectiveOppositeQuizContentState
               ),
               Padding(
                 padding: EdgeInsets.only(top: screenHeight * 0.01),
-                child: Text(
-                  currentAdjective.reverseExample,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontStyle: FontStyle.italic),
-                ),
+                // استخدام نفس دالة التنسيق لعرض مثال الإجابة الصحيحة
+                child: _formatExample(currentAdjective.reverseExample, context),
               ),
             ],
           ),
