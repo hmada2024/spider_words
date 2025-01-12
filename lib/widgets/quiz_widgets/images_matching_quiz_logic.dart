@@ -53,7 +53,6 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
       _currentNoun = _nouns.removeAt(0);
       _imageOptions = _generateImageOptions(_currentNoun!);
       _imageOptions.shuffle();
-      playCurrentNounAudio();
       notifyListeners();
     } else {
       // Game Over - سيتم التعامل معها في واجهة المستخدم

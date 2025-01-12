@@ -118,9 +118,6 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
       _isCorrect = true;
       _score++;
       playSound(AppConstants.correctAnswerSound);
-      if (_currentNoun?.audio != null) {
-        await _playAudio(_currentNoun!.audio);
-      }
       notifyListeners();
       await Future.delayed(const Duration(seconds: 1));
       _nextQuestion();
