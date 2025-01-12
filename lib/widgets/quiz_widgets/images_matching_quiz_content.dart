@@ -67,7 +67,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
 
     // تحديد النسب المئوية والأحجام بناءً على أبعاد الشاشة
     final double topInfoPadding = screenHeight * 0.015;
-    final double optionSpacing = screenWidth * 0.02;
+    final double optionSpacing = screenWidth * 0.07;
     final double correctTextSize = screenWidth * 0.05;
     final double borderRadius = screenWidth * 0.02;
     final double wordAreaFontSize = screenWidth * 0.06;
@@ -151,7 +151,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 1.0, // أزرار مربعة
+              childAspectRatio: 1.0,
               crossAxisSpacing: optionSpacing,
               mainAxisSpacing: optionSpacing,
               children: answerOptions.map((option) {
@@ -160,7 +160,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                 Color? buttonColor = Colors.blue;
                 if (isAnswered) {
                   buttonColor = isCorrectOption
-                      ? AppConstants.correctColor
+                      ? const Color.fromARGB(255, 12, 99, 15)
                       : AppConstants.wrongColor;
                 }
                 return Container(
