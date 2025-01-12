@@ -159,3 +159,50 @@ compound_word_card.dart:
 
 يتم استخدام AnimationController لإضافة حركات تفاعلية.
 
+
+
+assets/nouns.db
+
+Table: sqlite_sequence
+  Column: name - Type: 
+  Column: seq - Type: 
+
+
+Table: default_assets
+  Column: id - Type: INTEGER     
+  Column: category - Type: TEXT  
+  Column: image - Type: BLOB     
+  Column: audio - Type: BLOB
+
+
+Table: nouns
+  Column: id - Type: INTEGER
+  Column: name - Type: TEXT
+  Column: image - Type: BLOB
+  Column: audio - Type: BLOB
+  Column: category - Type: TEXT
+
+
+Table: adjectives
+  Column: id - Type: INTEGER
+  Column: main_adjective - Type: TEXT
+  Column: main_example - Type: TEXT
+  Column: reverse_adjective - Type: TEXT
+  Column: reverse_example - Type: TEXT
+  Column: main_adjective_audio - Type: BLOB
+  Column: reverse_adjective_audio - Type: BLOB
+  Column: main_example_audio - Type: BLOB
+  Column: reverse_example_audio - Type: BLOB
+
+
+Table: compound_words
+  Column: id - Type: INTEGER
+  Column: main - Type: TEXT
+  Column: part1 - Type: TEXT
+  Column: part2 - Type: TEXT
+  Column: example - Type: TEXT
+  Column: main_audio - Type: BLOB
+  Column: example_audio - Type: BLOB
+  Indexes:
+    Index Name: sqlite_autoindex_compound_words_1
+      Column: main
