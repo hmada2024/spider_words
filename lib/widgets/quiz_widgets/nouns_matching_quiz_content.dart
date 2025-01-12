@@ -6,7 +6,7 @@ import 'package:spider_words/utils/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart'; // هذا السطر تم اضافته
+import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
 
 class NounsMatchingQuizContent extends ConsumerWidget {
   final Noun? currentNoun;
@@ -58,14 +58,15 @@ class NounsMatchingQuizContent extends ConsumerWidget {
       }
     }
 
-    // تحديد النسب المئوية والأحجام بناءً على أبعاد الشاشة
     final double topInfoPadding = screenHeight * 0.015;
     final double optionSpacing = screenWidth * 0.02;
     final double correctTextSize = screenWidth * 0.05;
     final double borderRadius = screenWidth * 0.02;
-    final double imageWidth = screenWidth * 0.7;
+    final double imageWidth = screenWidth * 0.7; // القيمة الأصلية
     final double buttonFontSize = screenWidth * 0.038;
     final double buttonPaddingVertical = screenHeight * 0.015;
+    final double imageShadowBlurRadius = screenWidth * 0.01;
+    final double imageShadowOffset = screenWidth * 0.005;
 
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.03),
@@ -107,42 +108,26 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                   ? null
                   : () => playAudio(currentNoun?.audio),
               child: Container(
-                width: imageWidth,
+                width: screenWidth * 0.44,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(borderRadius),
-                  color: Colors.grey.shade200,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(0, 2)),
+                      color: Colors.black.withValues(alpha: 1),
+                      spreadRadius: 1,
+                      blurRadius: imageShadowBlurRadius,
+                      offset: Offset(imageShadowOffset, imageShadowOffset),
+                    ),
                   ],
                 ),
-                child: Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(borderRadius),
-                      child: currentNoun?.image != null
-                          ? Image.memory(
-                              currentNoun!.image!,
-                              fit: BoxFit.contain,
-                            )
-                          : const Icon(Icons.image_not_supported, size: 50),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: IconButton(
-                        icon:
-                            Icon(Icons.volume_up, color: Colors.blue.shade700),
-                        onPressed: isInteractionDisabled
-                            ? null
-                            : () => playAudio(currentNoun?.audio),
-                      ),
-                    ),
-                  ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  child: currentNoun?.image != null
+                      ? Image.memory(
+                          currentNoun!.image!,
+                          fit: BoxFit.contain,
+                        )
+                      : const Icon(Icons.image_not_supported, size: 50),
                 ),
               ),
             ),
@@ -171,7 +156,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.3),
+                          color: Colors.grey.withValues(alpha: 1),
                           spreadRadius: 1,
                           blurRadius: 3,
                           offset: const Offset(0, 2)),
@@ -203,7 +188,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
               }).toList(),
             ),
           ),
-          if (isCorrect || isWrong) // تم التعديل هنا
+          if (isCorrect || isWrong)
             CorrectWrongMessage(
               isCorrect: isCorrect,
               correctTextSize: correctTextSize,
