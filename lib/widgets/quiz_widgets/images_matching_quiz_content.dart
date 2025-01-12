@@ -74,6 +74,8 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
     final double wordAreaFontSize = screenWidth * 0.06;
     final double wordAreaPaddingVertical = screenHeight * 0.01;
     final double wordAreaPaddingHorizontal = screenWidth * 0.03;
+    final double imageShadowBlurRadius = screenWidth * 0.01;
+    final double imageShadowOffset = screenWidth * 0.005;
 
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.03),
@@ -158,38 +160,37 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               children: answerOptions.map((option) {
                 final isCorrectOption = option.id == currentNoun?.id;
                 final isAnswered = isCorrect || isWrong;
-                Color? buttonColor = Colors.blue;
+                Color? borderColor;
                 if (isAnswered) {
-                  buttonColor = isCorrectOption
-                      ? const Color.fromARGB(255, 12, 99, 15)
+                  borderColor = isCorrectOption
+                      ? AppConstants.correctColor
                       : AppConstants.wrongColor;
                 }
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.5),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      onOptionSelected(option);
-                      if (isCorrect) {
-                        playCorrectSound();
-                      } else if (isWrong) {
-                        playWrongSound();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonColor,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(borderRadius)),
-                      elevation: 0,
+                return GestureDetector(
+                  onTap: () {
+                    onOptionSelected(option);
+                    if (isCorrect) {
+                      playCorrectSound();
+                    } else if (isWrong) {
+                      playWrongSound();
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      border: Border.all(
+                        color: borderColor ?? Colors.transparent, // لون الحدود
+                        width: 2.0, // سمك الحدود
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.8),
+                          spreadRadius: 0,
+                          blurRadius: imageShadowBlurRadius,
+                          offset: Offset(imageShadowOffset,
+                              imageShadowOffset), // ظل من اليسار والأسفل
+                        ),
+                      ],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(borderRadius),
@@ -205,7 +206,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               }).toList(),
             ),
           ),
-          if (isCorrect || isWrong) // تم التعديل هنا
+          if (isCorrect || isWrong)
             CorrectWrongMessage(
               isCorrect: isCorrect,
               correctTextSize: correctTextSize,
