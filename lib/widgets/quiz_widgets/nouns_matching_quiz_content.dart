@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
-import 'package:spider_words/utils/screen_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
@@ -36,8 +35,8 @@ class NounsMatchingQuizContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = ScreenUtils.getWidth(context);
-    final screenHeight = ScreenUtils.getHeight(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final audioPlayer = ref.watch(audioPlayerProvider);
 
     Future<void> playAudio(Uint8List? audioBytes) async {
@@ -50,15 +49,18 @@ class NounsMatchingQuizContent extends ConsumerWidget {
       }
     }
 
-    final double topInfoPadding = screenHeight * 0.02;
-    final double optionButtonPadding = screenWidth * 0.02;
-    final double optionSpacing = screenWidth * 0.03;
-    final double correctTextSize = screenWidth * 0.06;
-    final double borderRadius = screenWidth * 0.03;
+    // تحديد النسب المئوية والأحجام بناءً على أبعاد الشاشة
+    final double topInfoPadding = screenHeight * 0.015;
+    final double optionSpacing = screenWidth * 0.02;
+    final double correctTextSize = screenWidth * 0.05;
+    final double borderRadius = screenWidth * 0.02;
+    final double imageWidth = screenWidth * 0.7; // نسبة من عرض الشاشة
+    final double buttonFontSize = screenWidth * 0.038;
+    final double buttonPaddingVertical =
+        screenHeight * 0.015; // تقليل الحجم الرأسي للأزرار
 
     return Padding(
-      // Removed SingleChildScrollView to potentially fix scaling issue
-      padding: EdgeInsets.all(screenWidth * 0.05),
+      padding: EdgeInsets.all(screenWidth * 0.03), // هوامش متناسبة
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -69,7 +71,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                 Text(
                   'Total Questions: $totalQuestions',
                   style: TextStyle(
-                      fontSize: screenWidth * 0.045,
+                      fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold),
                 ),
                 Row(
@@ -78,74 +80,75 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     Text(
                       'Correct: $score',
                       style: TextStyle(
-                          fontSize: screenWidth * 0.04,
+                          fontSize: screenWidth * 0.035,
                           color: AppConstants.correctColor),
                     ),
                     SizedBox(width: optionSpacing),
                     Text(
                       'Answered: $answeredQuestions',
-                      style: TextStyle(fontSize: screenWidth * 0.04),
+                      style: TextStyle(fontSize: screenWidth * 0.035),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: isInteractionDisabled
-                ? null
-                : () => playAudio(currentNoun?.audio),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                color: Colors.grey.shade200,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Stack(
-                alignment: Alignment.topRight, // Adjusted alignment
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    child: currentNoun?.image != null
-                        ? Image.memory(
-                            currentNoun!.image!,
-                            fit: BoxFit.contain, // Changed fit to contain
-                            width:
-                                double.infinity, // Ensure it takes full width
-                          )
-                        : const Icon(Icons.image_not_supported, size: 50),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: IconButton(
-                      icon: Icon(Icons.volume_up, color: Colors.blue.shade700),
-                      onPressed: isInteractionDisabled
-                          ? null
-                          : () => playAudio(currentNoun?.audio),
+          Center(
+            // توسيط الصورة
+            child: GestureDetector(
+              onTap: isInteractionDisabled
+                  ? null
+                  : () => playAudio(currentNoun?.audio),
+              child: Container(
+                width: imageWidth, // استخدام العرض المحدد
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  color: Colors.grey.shade200,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 2)),
+                  ],
+                ),
+                child: Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      child: currentNoun?.image != null
+                          ? Image.memory(
+                              currentNoun!.image!,
+                              fit: BoxFit.contain, // احتواء الصورة
+                            )
+                          : const Icon(Icons.image_not_supported, size: 50),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon:
+                            Icon(Icons.volume_up, color: Colors.blue.shade700),
+                        onPressed: isInteractionDisabled
+                            ? null
+                            : () => playAudio(currentNoun?.audio),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          SizedBox(
-              height:
-                  optionSpacing), // Reduced bottomSpacing and used optionSpacing
+          SizedBox(height: optionSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
             child: GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 3, // Adjust as needed for text buttons
+              childAspectRatio:
+                  3.0, // تعديل نسبة العرض إلى الارتفاع لجعلها مستطيلة
               crossAxisSpacing: optionSpacing,
               mainAxisSpacing: optionSpacing,
               children: answerOptions.map((option) {
@@ -162,11 +165,10 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(0, 2),
-                      ),
+                          color: Colors.grey.withValues(alpha: 0.3),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2)),
                     ],
                   ),
                   child: ElevatedButton(
@@ -174,16 +176,16 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: buttonColor,
-                      padding:
-                          EdgeInsets.symmetric(vertical: optionButtonPadding),
+                      padding: EdgeInsets.symmetric(
+                          vertical:
+                              buttonPaddingVertical), // استخدام الحجم الرأسي المحدد
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
                     ),
                     child: Text(
                       option.name,
-                      style: TextStyle(fontSize: screenWidth * 0.04),
+                      style: TextStyle(fontSize: buttonFontSize),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -193,8 +195,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
           ),
           if (isCorrect)
             Padding(
-              padding: EdgeInsets.only(
-                  top: optionSpacing), // استخدمت optionSpacing للتوحيد
+              padding: EdgeInsets.only(top: optionSpacing),
               child: Text(
                 'Correct!',
                 style: TextStyle(
@@ -205,8 +206,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
             ),
           if (isWrong)
             Padding(
-              padding: EdgeInsets.only(
-                  top: optionSpacing), // استخدمت optionSpacing للتوحيد
+              padding: EdgeInsets.only(top: optionSpacing),
               child: Text(
                 'Wrong!',
                 style: TextStyle(

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/utils/app_constants.dart';
-import 'package:spider_words/utils/screen_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
@@ -36,8 +35,8 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = ScreenUtils.getWidth(context);
-    final screenHeight = ScreenUtils.getHeight(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final audioPlayer = ref.watch(audioPlayerProvider);
 
     Future<void> playAudio(Uint8List? audioBytes) async {
@@ -50,14 +49,17 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
       }
     }
 
-    final double topInfoPadding = screenHeight * 0.02;
-    final double optionSpacing = screenWidth * 0.05;
-    final double correctTextSize = screenWidth * 0.06;
-    final double borderRadius = screenWidth * 0.03;
+    // تحديد النسب المئوية والأحجام بناءً على أبعاد الشاشة
+    final double topInfoPadding = screenHeight * 0.015;
+    final double optionSpacing = screenWidth * 0.02;
+    final double correctTextSize = screenWidth * 0.05;
+    final double borderRadius = screenWidth * 0.02;
+    final double wordAreaFontSize = screenWidth * 0.06;
+    final double wordAreaPaddingVertical = screenHeight * 0.01;
+    final double wordAreaPaddingHorizontal = screenWidth * 0.03;
 
     return Padding(
-      // تم استبدال SingleChildScrollView بـ Padding
-      padding: EdgeInsets.all(screenWidth * 0.05),
+      padding: EdgeInsets.all(screenWidth * 0.03), // هوامش متناسبة
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
@@ -68,7 +70,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                 Text(
                   'Total Questions: $totalQuestions',
                   style: TextStyle(
-                      fontSize: screenWidth * 0.045,
+                      fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold),
                 ),
                 Row(
@@ -77,13 +79,13 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                     Text(
                       'Correct: $score',
                       style: TextStyle(
-                          fontSize: screenWidth * 0.04,
+                          fontSize: screenWidth * 0.035,
                           color: AppConstants.correctColor),
                     ),
                     SizedBox(width: optionSpacing),
                     Text(
                       'Answered: $answeredQuestions',
-                      style: TextStyle(fontSize: screenWidth * 0.04),
+                      style: TextStyle(fontSize: screenWidth * 0.035),
                     ),
                   ],
                 ),
@@ -100,23 +102,24 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(borderRadius),
               ),
               padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.02), // تعديل حجم منطقة السؤال
+                vertical: wordAreaPaddingVertical,
+                horizontal: wordAreaPaddingHorizontal,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     currentNoun?.name ?? '',
                     style: TextStyle(
-                      fontSize: screenWidth * 0.07,
+                      fontSize: wordAreaFontSize,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade800,
                     ),
                   ),
-                  SizedBox(width: screenWidth * 0.02),
+                  SizedBox(width: screenWidth * 0.01),
                   IconButton(
                     icon: Icon(Icons.volume_up,
-                        size: screenWidth * 0.08, color: Colors.blue.shade800),
+                        size: screenWidth * 0.07, color: Colors.blue.shade800),
                     onPressed: isInteractionDisabled
                         ? null
                         : () => playAudio(currentNoun?.audio),
@@ -125,14 +128,14 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               ),
             ),
           ),
-          SizedBox(height: optionSpacing), // توحيد المسافات
+          SizedBox(height: optionSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
             child: GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 1,
+              childAspectRatio: 1.0, // أزرار مربعة
               crossAxisSpacing: optionSpacing,
               mainAxisSpacing: optionSpacing,
               children: answerOptions.map((option) {
@@ -149,11 +152,10 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(borderRadius),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withValues(alpha: 0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
+                          color: Colors.grey.withValues(alpha: 0.5),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2)),
                     ],
                   ),
                   child: ElevatedButton(
@@ -162,8 +164,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                       backgroundColor: buttonColor,
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(borderRadius),
-                      ),
+                          borderRadius: BorderRadius.circular(borderRadius)),
                       elevation: 0,
                     ),
                     child: ClipRRect(
@@ -171,7 +172,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                       child: option.image != null
                           ? Image.memory(
                               option.image!,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.cover, // تغطية المساحة
                             )
                           : const Icon(Icons.image_not_supported, size: 50),
                     ),
