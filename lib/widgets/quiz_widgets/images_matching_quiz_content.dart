@@ -124,6 +124,14 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  IconButton(
+                    icon: Icon(Icons.volume_up,
+                        size: screenWidth * 0.07, color: Colors.blue.shade800),
+                    onPressed: isInteractionDisabled
+                        ? null
+                        : () => playAudio(currentNoun?.audio),
+                  ),
+                  SizedBox(width: screenWidth * 0.01),
                   Text(
                     currentNoun?.name ?? '',
                     style: TextStyle(
@@ -131,14 +139,6 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade800,
                     ),
-                  ),
-                  SizedBox(width: screenWidth * 0.01),
-                  IconButton(
-                    icon: Icon(Icons.volume_up,
-                        size: screenWidth * 0.07, color: Colors.blue.shade800),
-                    onPressed: isInteractionDisabled
-                        ? null
-                        : () => playAudio(currentNoun?.audio),
                   ),
                 ],
               ),
