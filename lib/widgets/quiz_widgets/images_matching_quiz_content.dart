@@ -152,7 +152,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 1.0,
+              childAspectRatio: 1.3,
               crossAxisSpacing: optionSpacing,
               mainAxisSpacing: optionSpacing,
               children: answerOptions.map((option) {
