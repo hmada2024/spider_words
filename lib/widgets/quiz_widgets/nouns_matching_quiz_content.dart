@@ -61,7 +61,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
     final double topInfoPadding = screenHeight *
         0.015; // Padding above the total questions and correct/answered info, relative to screen height.
     final double optionSpacing = screenWidth *
-        0.02; // Spacing between answer options, relative to screen width.
+        0.05; // Spacing between answer options, relative to screen width.
     final double correctTextSize = screenWidth *
         0.05; // Font size for the "Correct" message, relative to screen width.
     final double borderRadius = screenWidth *
@@ -132,7 +132,7 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 1),
-                          spreadRadius: 1,
+                          spreadRadius: 3,
                           blurRadius: imageShadowBlurRadius,
                           offset: Offset(imageShadowOffset, imageShadowOffset),
                         ),
