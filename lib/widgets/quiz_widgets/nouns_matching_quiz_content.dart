@@ -58,18 +58,30 @@ class NounsMatchingQuizContent extends ConsumerWidget {
       }
     }
 
-    final double topInfoPadding = screenHeight * 0.015;
-    final double optionSpacing = screenWidth * 0.02;
-    final double correctTextSize = screenWidth * 0.05;
-    final double borderRadius = screenWidth * 0.02;
-    final double imageWidth = screenWidth * 0.7; // القيمة الأصلية
-    final double buttonFontSize = screenWidth * 0.038;
-    final double buttonPaddingVertical = screenHeight * 0.015;
-    final double imageShadowBlurRadius = screenWidth * 0.01;
-    final double imageShadowOffset = screenWidth * 0.005;
+    final double topInfoPadding = screenHeight *
+        0.015; // Padding above the total questions and correct/answered info, relative to screen height.
+    final double optionSpacing = screenWidth *
+        0.02; // Spacing between answer options, relative to screen width.
+    final double correctTextSize = screenWidth *
+        0.05; // Font size for the "Correct" message, relative to screen width.
+    final double borderRadius = screenWidth *
+        0.02; // Border radius for buttons and image container, relative to screen width.
+    final double imageWidth = screenWidth *
+        0.7; // The original value. This variable is not directly used in the `Image.memory` widget for setting the width. The image's width is implicitly determined by its parent `Container`'s width and the `fit: BoxFit.contain` property.
+    final double buttonFontSize = screenWidth *
+        0.038; // Font size for the text on the answer option buttons, relative to screen width.
+    final double buttonPaddingVertical = screenHeight *
+        0.015; // Vertical padding inside the answer option buttons, relative to screen height.
+    final double imageShadowBlurRadius = screenWidth *
+        0.01; // Blur radius for the shadow behind the image, relative to screen width.
+    final double imageShadowOffset = screenWidth *
+        0.005; // Offset for the shadow behind the image, relative to screen width.
+    final double spaceBetweenImageAndOptions = screenHeight *
+        0.06; // Spacing between the image and the answer options, set to 6% of screen height.
 
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.03),
+      padding: EdgeInsets.all(screenWidth *
+          0.03), // Overall padding around the quiz content, relative to screen width.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -80,7 +92,8 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                 Text(
                   'Total Questions: $totalQuestions',
                   style: TextStyle(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: screenWidth *
+                          0.04, // Font size for the total questions text, relative to screen width.
                       fontWeight: FontWeight.bold),
                 ),
                 Row(
@@ -89,13 +102,16 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     Text(
                       'Correct: $score',
                       style: TextStyle(
-                          fontSize: screenWidth * 0.035,
+                          fontSize: screenWidth *
+                              0.035, // Font size for the correct score text, relative to screen width.
                           color: AppConstants.correctColor),
                     ),
                     SizedBox(width: optionSpacing),
                     Text(
                       'Answered: $answeredQuestions',
-                      style: TextStyle(fontSize: screenWidth * 0.035),
+                      style: TextStyle(
+                          fontSize: screenWidth *
+                              0.035), // Font size for the answered questions text, relative to screen width.
                     ),
                   ],
                 ),
@@ -108,7 +124,8 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                   ? null
                   : () => playAudio(currentNoun?.audio),
               child: Container(
-                width: screenWidth * 0.44,
+                width: screenWidth *
+                    0.44, // Width of the image container, relative to screen width.
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(borderRadius),
                   boxShadow: [
@@ -132,7 +149,9 @@ class NounsMatchingQuizContent extends ConsumerWidget {
               ),
             ),
           ),
-          SizedBox(height: optionSpacing),
+          SizedBox(
+              height:
+                  spaceBetweenImageAndOptions), // Added SizedBox for spacing between image and options.
           IgnorePointer(
             ignoring: isInteractionDisabled,
             child: GridView.count(
