@@ -1,5 +1,6 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:spider_words/pages/quiz_pages/adjective_opposite_quiz_page.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:spider_words/pages/vocabulary_pages/adjectives_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/compound_words_page.dart';
@@ -57,9 +58,11 @@ class MyApp extends StatelessWidget {
         NounsPage.routeName: (context) => const NounsPage(),
         CompoundWordsPage.routeName: (context) => const CompoundWordsPage(),
         ImagesMatchingQuizPage.routeName: (context) =>
-            const ImagesMatchingQuizPage(), // إضافة مسار صفحة لعبة المطابقة
+            const ImagesMatchingQuizPage(),
         NounsMatchingQuizPage.routeName: (context) =>
-            const NounsMatchingQuizPage(), // إضافة مسار الصفحة الجديدة
+            const NounsMatchingQuizPage(),
+        AdjectiveOppositeQuizPage.routeName: (context) =>
+            const AdjectiveOppositeQuizPage(),
       },
     );
   }

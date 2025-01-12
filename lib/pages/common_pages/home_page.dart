@@ -1,5 +1,6 @@
 // lib/pages/common_pages/home_page.dart
 import 'package:flutter/material.dart';
+import 'package:spider_words/pages/quiz_pages/adjective_opposite_quiz_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/adjectives_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/compound_words_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/nouns_page.dart';
@@ -71,6 +72,12 @@ class HomeButtons extends StatelessWidget {
           labelText: 'Nouns Matching',
           routeName: NounsMatchingQuizPage.routeName,
           color: Colors.red.shade700,
+        ),
+        SizedBox(height: spacing),
+        CustomHomeButton(
+          labelText: 'Adjectives Matching',
+          routeName: AdjectiveOppositeQuizPage.routeName,
+          color: Colors.blue.shade700,
         ),
       ],
     );
