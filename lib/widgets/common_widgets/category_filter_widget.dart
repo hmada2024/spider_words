@@ -1,6 +1,7 @@
 // lib/widgets/common_widgets/category_filter_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spider_words/utils/string_formatter.dart'; // استيراد ملف التنسيق
 
 class CategoryFilterDropdown extends ConsumerWidget {
   final List<String> categories;
@@ -14,20 +15,13 @@ class CategoryFilterDropdown extends ConsumerWidget {
     required this.onCategoryChanged,
   });
 
-  String _formatCategoryName(String category) {
-    return category
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: IconButton(
         icon: const Icon(Icons.filter_list, color: Colors.white),
-        tooltip: 'Filter Categories', // إضافة تلميح عند تمرير الماوس
+        tooltip: 'Filter Categories',
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -41,12 +35,12 @@ class CategoryFilterDropdown extends ConsumerWidget {
                     title: Text(
                       category == 'all'
                           ? 'All Categories'
-                          : _formatCategoryName(category),
+                          : StringFormatter.formatFieldName(
+                              category), // استخدام دالة التنسيق
                     ),
                     onTap: () {
-                      onCategoryChanged(
-                          category); // استدعاء الدالة لتحديث الفئة المختارة
-                      Navigator.pop(context); // إغلاق النافذة المنزلقة
+                      onCategoryChanged(category);
+                      Navigator.pop(context);
                     },
                   );
                 },

@@ -7,7 +7,8 @@ import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/vocabulary_widgets/noun_list.dart';
 import '../../main.dart';
-import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart'; // استيراد الودجت الجديد
+import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart';
+import 'package:spider_words/utils/string_formatter.dart'; // استيراد ملف التنسيق
 
 // Provider to fetch nouns by category
 final nounsByCategoryProvider =
@@ -46,13 +47,6 @@ class NounsPageState extends ConsumerState<NounsPage> {
     super.dispose();
   }
 
-  String _formatCategoryName(String category) {
-    return category
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final selectedCategory = ref.watch(selectedCategoryProvider);
@@ -63,7 +57,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
       appBar: CustomAppBar(
         title: 'Nouns',
         actions: [
-          _buildCategoryFilterDropdown(), // استخدام الودجت الجديد
+          _buildCategoryFilterDropdown(),
         ],
       ),
       body: CustomGradient(
@@ -80,7 +74,8 @@ class NounsPageState extends ConsumerState<NounsPage> {
                   child: Text(
                     selectedCategory == 'all'
                         ? 'All Categories'
-                        : _formatCategoryName(selectedCategory),
+                        : StringFormatter.formatFieldName(
+                            selectedCategory), // استخدام دالة التنسيق
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
