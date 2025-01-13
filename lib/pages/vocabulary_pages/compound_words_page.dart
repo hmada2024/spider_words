@@ -2,18 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/models/compound_word_model.dart';
 import 'package:spider_words/widgets/vocabulary_widgets/compound_word_card.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
-import '../../main.dart';
-
-// Provider to fetch compound words
-final compoundWordsProvider =
-    FutureProvider.autoDispose<List<CompoundWord>>((ref) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  return dbHelper.getCompoundWords();
-});
+import 'package:spider_words/providers/compound_word_provider.dart';
 
 class CompoundWordsPage extends ConsumerStatefulWidget {
   static const routeName = '/compound_words';
@@ -42,7 +34,6 @@ class CompoundWordsPageState extends ConsumerState<CompoundWordsPage> {
       body: CustomGradient(
         child: RefreshIndicator(
           onRefresh: () async {
-            // Trigger a refetch by invalidating the provider
             ref.invalidate(compoundWordsProvider);
             await ref.read(compoundWordsProvider.future);
           },

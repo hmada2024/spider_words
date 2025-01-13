@@ -2,24 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/vocabulary_widgets/noun_list.dart';
-import '../../main.dart';
 import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart';
-import 'package:spider_words/utils/string_formatter.dart'; // استيراد ملف التنسيق
-
-// Provider to fetch nouns by category
-final nounsByCategoryProvider =
-    FutureProvider.family<List<Noun>, String>((ref, category) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  if (category == 'all') {
-    return dbHelper.getNouns();
-  } else {
-    return dbHelper.getNounsByCategory(category);
-  }
-});
+import 'package:spider_words/utils/string_formatter.dart';
+import 'package:spider_words/providers/noun_provider.dart';
 
 // Provider for the selected category
 final selectedCategoryProvider = StateProvider<String>((ref) => 'all');
@@ -37,11 +25,6 @@ class NounsPageState extends ConsumerState<NounsPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _audioPlayer.dispose();
     super.dispose();
@@ -50,8 +33,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
   @override
   Widget build(BuildContext context) {
     final selectedCategory = ref.watch(selectedCategoryProvider);
-    final nounsAsyncValue =
-        ref.watch(nounsByCategoryProvider(selectedCategory));
+    final nounsAsyncValue = ref.watch(nounsProvider);
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -63,8 +45,8 @@ class NounsPageState extends ConsumerState<NounsPage> {
       body: CustomGradient(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(nounsByCategoryProvider(selectedCategory));
-            await ref.read(nounsByCategoryProvider(selectedCategory).future);
+            ref.invalidate(nounsProvider);
+            await ref.read(nounsProvider.future);
           },
           child: Column(
             children: [
@@ -74,8 +56,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
                   child: Text(
                     selectedCategory == 'all'
                         ? 'All Categories'
-                        : StringFormatter.formatFieldName(
-                            selectedCategory), // استخدام دالة التنسيق
+                        : StringFormatter.formatFieldName(selectedCategory),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -90,9 +71,17 @@ class NounsPageState extends ConsumerState<NounsPage> {
                   error: (error, stackTrace) => Center(
                       child: Text('Error: $error',
                           style: const TextStyle(color: Colors.white))),
-                  data: (nouns) => NounList(
-                      nounsFuture: Future.value(nouns),
-                      audioPlayer: _audioPlayer),
+                  data: (nouns) {
+                    final filteredNouns = selectedCategory == 'all'
+                        ? nouns
+                        : nouns
+                            .where((noun) => noun.category == selectedCategory)
+                            .toList();
+                    return NounList(
+                      nounsFuture: Future.value(filteredNouns),
+                      audioPlayer: _audioPlayer,
+                    );
+                  },
                 ),
               ),
             ],
@@ -103,29 +92,29 @@ class NounsPageState extends ConsumerState<NounsPage> {
   }
 
   Widget _buildCategoryFilterDropdown() {
-    return FutureBuilder<List<String>>(
-      future: ref
-          .read(databaseHelperProvider)
-          .getNouns()
-          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error loading categories: ${snapshot.error}');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('No categories available.');
-        } else {
-          final categories = ['all', ...snapshot.data!];
-          return CategoryFilterDropdown(
-            // استخدام الودجت المفصول
-            categories: categories,
-            selectedCategory: ref.watch(selectedCategoryProvider),
-            onCategoryChanged: (newValue) {
-              ref.read(selectedCategoryProvider.notifier).state = newValue!;
-            },
-          );
-        }
+    return Consumer(
+      builder: (context, ref, _) {
+        final nounsAsyncValue = ref.watch(nounsProvider);
+        return nounsAsyncValue.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) =>
+              Text('Error loading categories: $error'),
+          data: (nouns) {
+            final categories = [
+              'all',
+              ...nouns.map((noun) => noun.category).toSet()
+            ];
+            return CategoryFilterDropdown(
+              categories: categories.toList(), // Added toList() here
+              selectedCategory: ref.watch(selectedCategoryProvider),
+              onCategoryChanged: (newValue) {
+                if (newValue != null) {
+                  ref.read(selectedCategoryProvider.notifier).state = newValue;
+                }
+              },
+            );
+          },
+        );
       },
     );
   }

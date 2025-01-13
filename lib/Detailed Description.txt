@@ -18,6 +18,10 @@ lib/
 │   └── quiz_pages/
 │       ├── images_matching_quiz_page.dart
 │       └── nouns_matching_quiz_page.dart
+├── providers/  <-- المجلد الجديد بتاع الـ Providers
+│   ├── adjective_provider.dart
+│   ├── compound_word_provider.dart
+│   └── noun_provider.dart
 ├── utils/
 │   ├── app_constants.dart
 │   ├── constants.dart
@@ -39,7 +43,6 @@ lib/
 │       ├── noun_item.dart
 │       └── noun_list.dart
 └── main.dart
-
 
 
 وصف شامل للتطبيق:
