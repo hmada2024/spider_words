@@ -1,5 +1,4 @@
 // lib/pages/quiz_pages/nouns_matching_quiz_page.dart
-import 'dart:math'; // تم إضافة هذا السطر
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
@@ -9,6 +8,7 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_logic.dart';
 import 'package:spider_words/providers/noun_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart'; // استيراد الودجت
 
 final selectedAudioImageQuizCategoryProvider =
     StateProvider<String>((ref) => 'all');
@@ -48,7 +48,40 @@ class NounsMatchingQuizPage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Nouns Matching Quiz',
         actions: [
-          _buildCategoryDropdown(ref, context),
+          // استبدال DropdownButton بـ CategoryFilterDropdown
+          Consumer(
+            builder: (context, ref, _) {
+              final nounsAsyncValue = ref.watch(nounsProvider);
+              return nounsAsyncValue.when(
+                loading: () =>
+                    const SizedBox.shrink(), // لا نعرض شيء أثناء التحميل هنا
+                error: (error, stackTrace) =>
+                    Text('Error loading categories: $error'),
+                data: (nouns) {
+                  final categories = [
+                    'all',
+                    ...nouns.map((noun) => noun.category).toSet()
+                  ];
+                  return CategoryFilterDropdown(
+                    categories: categories,
+                    selectedCategory:
+                        ref.watch(selectedAudioImageQuizCategoryProvider),
+                    onCategoryChanged: (newValue) {
+                      if (newValue != null) {
+                        ref
+                            .read(
+                                selectedAudioImageQuizCategoryProvider.notifier)
+                            .state = newValue;
+                        ref
+                            .read(audioImageMatchingQuizLogicProvider)
+                            .resetQuizForCategory(newValue);
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
       body: CustomGradient(
@@ -113,57 +146,7 @@ class NounsMatchingQuizPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryDropdown(WidgetRef ref, BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
-
-    return Consumer(
-      builder: (context, ref, _) {
-        final nounsAsyncValue = ref.watch(nounsProvider);
-        return nounsAsyncValue.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              Text('Error loading categories: $error'),
-          data: (nouns) {
-            final categories = [
-              'all',
-              ...nouns.map((noun) => noun.category).toSet()
-            ];
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: DropdownButton<String>(
-                value: ref.watch(selectedAudioImageQuizCategoryProvider),
-                underline: Container(),
-                icon: Icon(Icons.arrow_drop_down,
-                    color: Colors.white, size: dropdownIconSize),
-                dropdownColor: Colors.blueAccent,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    ref
-                        .read(selectedAudioImageQuizCategoryProvider.notifier)
-                        .state = newValue;
-                    ref
-                        .read(audioImageMatchingQuizLogicProvider)
-                        .resetQuizForCategory(newValue);
-                  }
-                },
-                items: categories.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value == 'all'
-                        ? 'All Categories'
-                        : formatCategoryName(value)),
-                  );
-                }).toList(),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  // تم حذف _buildCategoryDropdown هنا
 
   void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
     final quizLogic = ref.read(audioImageMatchingQuizLogicProvider);
