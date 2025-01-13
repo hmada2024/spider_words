@@ -8,7 +8,7 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/nouns_matching_quiz_logic.dart';
 import 'package:spider_words/providers/noun_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart'; // استيراد الودجت
+import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart';
 
 final selectedAudioImageQuizCategoryProvider =
     StateProvider<String>((ref) => 'all');
@@ -48,13 +48,11 @@ class NounsMatchingQuizPage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Nouns Matching Quiz',
         actions: [
-          // استبدال DropdownButton بـ CategoryFilterDropdown
           Consumer(
             builder: (context, ref, _) {
               final nounsAsyncValue = ref.watch(nounsProvider);
               return nounsAsyncValue.when(
-                loading: () =>
-                    const SizedBox.shrink(), // لا نعرض شيء أثناء التحميل هنا
+                loading: () => const SizedBox.shrink(),
                 error: (error, stackTrace) =>
                     Text('Error loading categories: $error'),
                 data: (nouns) {
@@ -127,10 +125,10 @@ class NounsMatchingQuizPage extends ConsumerWidget {
                   ref.watch(audioImageMatchingQuizLogicProvider).totalQuestions,
               onOptionSelected: (noun) => ref
                   .read(audioImageMatchingQuizLogicProvider)
-                  .checkAnswer(noun, context),
+                  .checkAnswer(noun),
               playCurrentNounAudio: () => ref
                   .read(audioImageMatchingQuizLogicProvider)
-                  .playCurrentNounAudio(context),
+                  .playCurrentNounAudio(),
               isInteractionDisabled: ref
                   .watch(audioImageMatchingQuizLogicProvider)
                   .isInteractionDisabled,
@@ -145,8 +143,6 @@ class NounsMatchingQuizPage extends ConsumerWidget {
       ),
     );
   }
-
-  // تم حذف _buildCategoryDropdown هنا
 
   void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
     final quizLogic = ref.read(audioImageMatchingQuizLogicProvider);

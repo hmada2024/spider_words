@@ -18,7 +18,7 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   int _score = 0;
   int _answeredQuestions = 0;
   bool _isInteractionDisabled = false;
-  int _totalQuestions = 0; // إضافة متغير لعدد الأسئلة الكلية
+  int _totalQuestions = 0;
 
   int get score => _score;
   int get answeredQuestions => _answeredQuestions;
@@ -42,7 +42,6 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   void _startNewQuiz() {
     if (initialNouns.isEmpty) {
       debugPrint('ImagesMatchingQuizLogic: initialNouns is empty.');
-      // يمكنك هنا معالجة هذا السيناريو، مثل عرض رسالة خطأ أو منع بدء الاختبار.
       return;
     }
     _nouns = List<Noun>.from(initialNouns)..shuffle();
@@ -61,12 +60,11 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
         _imageOptions.shuffle();
       } catch (e) {
         debugPrint('Error in _nextQuestion: $e');
-        // يمكنك هنا معالجة الخطأ، مثل إعادة تعيين الاختبار أو عرض رسالة خطأ.
         return;
       }
       notifyListeners();
     } else {
-      // Game Over - سيتم التعامل معها في واجهة المستخدم
+      // Game Over
     }
   }
 
@@ -94,7 +92,6 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
         }
       } catch (e) {
         debugPrint('Error generating image options: $e');
-        // Handle the error, possibly by breaking the loop or returning early
         break;
       }
     }
@@ -133,31 +130,31 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   Future<void> checkAnswer(Noun selectedNoun) async {
     _answeredQuestions++;
     _isInteractionDisabled = true;
-    notifyListeners(); // إعلام الواجهة بتعطيل التفاعل
+    notifyListeners();
 
     if (_currentNoun != null && selectedNoun.id == _currentNoun!.id) {
       _isCorrect = true;
       _score++;
-      playSound(AppConstants.correctAnswerSound); // Play sound immediately
-      notifyListeners(); // إعلام الواجهة بالإجابة الصحيحة والنتيجة الجديدة
-      await Future.delayed(const Duration(seconds: 1)); // Reduced delay
+      playSound(AppConstants.correctAnswerSound);
+      notifyListeners();
+      await Future.delayed(const Duration(seconds: 1));
       _nextQuestion();
     } else {
       _isWrong = true;
-      playSound(AppConstants.wrongAnswerSound); // Play sound immediately
-      notifyListeners(); // إعلام الواجهة بالإجابة الخاطئة
-      await Future.delayed(const Duration(milliseconds: 1600)); // Reduced delay
+      playSound(AppConstants.wrongAnswerSound);
+      notifyListeners();
+      await Future.delayed(const Duration(milliseconds: 1600));
       _nextQuestion();
     }
   }
 
   void resetQuiz() {
     if (initialNouns.isEmpty) {
-      return; // منع إعادة التعيين إذا لم تكن هناك بيانات أساسية
+      return;
     }
     _score = 0;
     _answeredQuestions = 0;
-    _startNewQuiz(); // إعادة بدء اللعبة
+    _startNewQuiz();
     notifyListeners();
   }
 

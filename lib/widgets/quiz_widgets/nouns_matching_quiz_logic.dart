@@ -42,7 +42,6 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
   void _startNewQuiz() {
     if (initialNouns.isEmpty) {
       debugPrint('NounsMatchingQuizLogic: initialNouns is empty.');
-      // يمكنك هنا معالجة هذا السيناريو.
       return;
     }
     _nouns = List<Noun>.from(initialNouns)..shuffle();
@@ -61,7 +60,6 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
         _answerOptions.shuffle();
       } catch (e) {
         debugPrint('Error in _nextQuestion: $e');
-        // يمكنك هنا معالجة الخطأ.
         return;
       }
       notifyListeners();
@@ -100,36 +98,23 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
     return options..shuffle();
   }
 
-  Future<void> _playAudio(Uint8List? audioBytes, BuildContext? context) async {
+  Future<void> _playAudio(Uint8List? audioBytes) async {
     if (audioBytes != null) {
       try {
         await audioPlayer.play(BytesSource(audioBytes));
       } catch (e) {
         debugPrint('Error playing audio: $e');
-        if (context != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
-          );
-        }
       }
     } else {
       debugPrint('Audio bytes are null.');
-      if (context != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
-        );
-      }
     }
   }
 
-  Future<void> playCurrentNounAudio(BuildContext context) async {
+  Future<void> playCurrentNounAudio() async {
     if (_currentNoun?.audio != null) {
-      await _playAudio(_currentNoun!.audio, context);
+      await _playAudio(_currentNoun!.audio);
     } else {
       debugPrint('Current noun audio is null.');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
-      );
     }
   }
 
@@ -142,7 +127,7 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAnswer(Noun selectedNoun, BuildContext context) async {
+  Future<void> checkAnswer(Noun selectedNoun) async {
     _answeredQuestions++;
     _isInteractionDisabled = true;
     notifyListeners();
@@ -165,7 +150,7 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
 
   void resetQuiz() {
     if (initialNouns.isEmpty) {
-      return; // منع إعادة التعيين إذا لم تكن هناك بيانات أساسية
+      return;
     }
     _score = 0;
     _answeredQuestions = 0;

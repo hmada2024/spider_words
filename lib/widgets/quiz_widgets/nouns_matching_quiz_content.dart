@@ -8,7 +8,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
 
-class NounsMatchingQuizContent extends ConsumerWidget {
+class NounsMatchingQuizContent extends ConsumerStatefulWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -35,59 +35,61 @@ class NounsMatchingQuizContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final audioPlayer = ref.watch(audioPlayerProvider);
+  ConsumerState<NounsMatchingQuizContent> createState() =>
+      _NounsMatchingQuizContentState();
+}
 
-    Future<void> playAudio(Uint8List? audioBytes) async {
-      if (audioBytes != null) {
-        try {
-          await audioPlayer.play(BytesSource(audioBytes));
-        } catch (e) {
-          debugPrint('Error playing audio: $e');
+class _NounsMatchingQuizContentState
+    extends ConsumerState<NounsMatchingQuizContent> {
+  Future<void> playAudio(Uint8List? audioBytes) async {
+    if (audioBytes != null) {
+      try {
+        await ref.read(audioPlayerProvider).play(BytesSource(audioBytes));
+      } catch (e) {
+        debugPrint('Error playing audio: $e');
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
           );
         }
-      } else {
-        debugPrint('Audio bytes are null for this noun.');
+      }
+    } else {
+      debugPrint('Audio bytes are null for this noun.');
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
         );
       }
     }
+  }
 
-    Future<void> playCorrectSound() async {
-      try {
-        await audioPlayer.play(AssetSource('sounds/correct.mp3'));
-      } catch (e) {
-        debugPrint('Error playing correct sound: $e');
-      }
+  Future<void> playCorrectSound() async {
+    try {
+      await ref
+          .read(audioPlayerProvider)
+          .play(AssetSource('sounds/correct.mp3'));
+    } catch (e) {
+      debugPrint('Error playing correct sound: $e');
     }
+  }
 
-    final double topInfoPadding = screenHeight *
-        0.015; // Padding above the total questions and correct/answered info, relative to screen height.
-    final double optionSpacing = screenWidth *
-        0.05; // Spacing between answer options, relative to screen width.
-    final double correctTextSize = screenWidth *
-        0.05; // Font size for the "Correct" message, relative to screen width.
-    final double borderRadius = screenWidth *
-        0.02; // Border radius for buttons and image container, relative to screen width.
-    final double buttonFontSize = screenWidth *
-        0.038; // Font size for the text on the answer option buttons, relative to screen width.
-    final double buttonPaddingVertical = screenHeight *
-        0.015; // Vertical padding inside the answer option buttons, relative to screen height.
-    final double imageShadowBlurRadius = screenWidth *
-        0.01; // Blur radius for the shadow behind the image, relative to screen width.
-    final double imageShadowOffset = screenWidth *
-        0.005; // Offset for the shadow behind the image, relative to screen width.
-    final double spaceBetweenImageAndOptions = screenHeight *
-        0.06; // Spacing between the image and the answer options, set to 6% of screen height.
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double topInfoPadding = screenHeight * 0.015;
+    final double optionSpacing = screenWidth * 0.05;
+    final double correctTextSize = screenWidth * 0.05;
+    final double borderRadius = screenWidth * 0.02;
+    final double buttonFontSize = screenWidth * 0.038;
+    final double buttonPaddingVertical = screenHeight * 0.015;
+    final double imageShadowBlurRadius = screenWidth * 0.01;
+    final double imageShadowOffset = screenWidth * 0.005;
+    final double spaceBetweenImageAndOptions = screenHeight * 0.06;
 
     return Padding(
-      padding: EdgeInsets.all(screenWidth *
-          0.03), // Overall padding around the quiz content, relative to screen width.
+      padding: EdgeInsets.all(screenWidth * 0.03),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -96,28 +98,24 @@ class NounsMatchingQuizContent extends ConsumerWidget {
             child: Column(
               children: [
                 Text(
-                  'Total Questions: $totalQuestions',
+                  'Total Questions: ${widget.totalQuestions}',
                   style: TextStyle(
-                      fontSize: screenWidth *
-                          0.04, // Font size for the total questions text, relative to screen width.
+                      fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Correct: $score',
+                      'Correct: ${widget.score}',
                       style: TextStyle(
-                          fontSize: screenWidth *
-                              0.035, // Font size for the correct score text, relative to screen width.
+                          fontSize: screenWidth * 0.035,
                           color: AppConstants.correctColor),
                     ),
                     SizedBox(width: optionSpacing),
                     Text(
-                      'Answered: $answeredQuestions',
-                      style: TextStyle(
-                          fontSize: screenWidth *
-                              0.035), // Font size for the answered questions text, relative to screen width.
+                      'Answered: ${widget.answeredQuestions}',
+                      style: TextStyle(fontSize: screenWidth * 0.035),
                     ),
                   ],
                 ),
@@ -126,15 +124,13 @@ class NounsMatchingQuizContent extends ConsumerWidget {
           ),
           Center(
             child: Stack(
-              // Wrap with Stack
               children: [
                 GestureDetector(
-                  onTap: isInteractionDisabled
+                  onTap: widget.isInteractionDisabled
                       ? null
-                      : () => playAudio(currentNoun?.audio),
+                      : () => playAudio(widget.currentNoun?.audio),
                   child: Container(
-                    width: screenWidth *
-                        0.44, // Width of the image container, relative to screen width.
+                    width: screenWidth * 0.44,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(borderRadius),
                       boxShadow: [
@@ -148,13 +144,13 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(borderRadius),
-                      child: currentNoun?.image != null
+                      child: widget.currentNoun?.image != null
                           ? Image.memory(
-                              currentNoun!.image!,
+                              widget.currentNoun!.image!,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 debugPrint(
-                                    'Error loading image for ${currentNoun?.name}: $error');
+                                    'Error loading image for ${widget.currentNoun?.name}: $error');
                                 return Image.asset(
                                     'assets/images/placeholder_image.png');
                               },
@@ -165,29 +161,26 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                   ),
                 ),
                 Positioned(
-                  // Position the icon
                   top: 5,
                   right: 5,
                   child: IconButton(
                     icon: Icon(
                       Icons.volume_up,
                       color: Colors.blue,
-                      size: screenWidth * 0.06, // Adjust size as needed
+                      size: screenWidth * 0.06,
                     ),
-                    onPressed: isInteractionDisabled
+                    onPressed: widget.isInteractionDisabled
                         ? null
-                        : () => playAudio(currentNoun?.audio),
+                        : () => playAudio(widget.currentNoun?.audio),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(
-              height:
-                  spaceBetweenImageAndOptions), // Added SizedBox for spacing between image and options.
+          SizedBox(height: spaceBetweenImageAndOptions),
           IgnorePointer(
-            ignoring: isInteractionDisabled,
-            child: answerOptions.isEmpty
+            ignoring: widget.isInteractionDisabled,
+            child: widget.answerOptions.isEmpty
                 ? const Center(child: Text('لا توجد خيارات إجابة.'))
                 : GridView.count(
                     shrinkWrap: true,
@@ -196,9 +189,10 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     childAspectRatio: 3.0,
                     crossAxisSpacing: optionSpacing,
                     mainAxisSpacing: optionSpacing,
-                    children: answerOptions.map((option) {
-                      final isCorrectOption = option.id == currentNoun?.id;
-                      final isAnswered = isCorrect || isWrong;
+                    children: widget.answerOptions.map((option) {
+                      final isCorrectOption =
+                          option.id == widget.currentNoun?.id;
+                      final isAnswered = widget.isCorrect || widget.isWrong;
                       Color? buttonColor = Colors.blue;
                       if (isAnswered) {
                         buttonColor = isCorrectOption
@@ -219,8 +213,8 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            onOptionSelected(option);
-                            if (isCorrect) {
+                            widget.onOptionSelected(option);
+                            if (widget.isCorrect) {
                               playCorrectSound();
                             }
                           },
@@ -243,9 +237,9 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                     }).toList(),
                   ),
           ),
-          if (isCorrect || isWrong)
+          if (widget.isCorrect || widget.isWrong)
             CorrectWrongMessage(
-              isCorrect: isCorrect,
+              isCorrect: widget.isCorrect,
               correctTextSize: correctTextSize,
             ),
         ],

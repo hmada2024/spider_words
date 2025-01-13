@@ -5,7 +5,7 @@ import 'package:spider_words/models/adjective_model.dart';
 import 'package:spider_words/pages/quiz_pages/adjective_opposite_quiz_page.dart';
 import 'package:spider_words/utils/app_constants.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
-import 'package:flutter_markdown/flutter_markdown.dart'; // استيراد مكتبة flutter_markdown
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class AdjectiveOppositeQuizContent extends ConsumerStatefulWidget {
   const AdjectiveOppositeQuizContent({super.key});
@@ -42,6 +42,21 @@ class AdjectiveOppositeQuizContentState
         textAlign: WrapAlignment.center,
       ),
     );
+  }
+
+  // دالة منفصلة لتشغيل الصوت مع التحقق من mounted
+  Future<void> _playMainAdjectiveAudio() async {
+    final logic = ref.read(adjectiveOppositeQuizLogicProvider);
+    try {
+      await logic.playMainAdjectiveAudio();
+    } catch (e) {
+      debugPrint('Error playing main adjective audio: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر تشغيل الصوت لهذه الكلمة.')),
+        );
+      }
+    }
   }
 
   @override
@@ -96,20 +111,7 @@ class AdjectiveOppositeQuizContentState
           ),
           // عرض الصفة الرئيسية مع زر تشغيل الصوت
           GestureDetector(
-            onTap: logic.isInteractionDisabled
-                ? null
-                : () async {
-                    try {
-                      await logic.playMainAdjectiveAudio();
-                    } catch (e) {
-                      debugPrint(
-                          'Error playing main adjective audio: $e'); // تسجيل الخطأ
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('تعذر تشغيل الصوت لهذه الكلمة.')),
-                      );
-                    }
-                  },
+            onTap: logic.isInteractionDisabled ? null : _playMainAdjectiveAudio,
             child: Container(
               padding: EdgeInsets.symmetric(
                   horizontal: screenWidth * 0.03,
@@ -248,7 +250,6 @@ class AdjectiveOppositeQuizContentState
               ),
               Padding(
                 padding: EdgeInsets.only(top: screenHeight * 0.01),
-                // استخدام نفس دالة التنسيق لعرض مثال الإجابة الصحيحة
                 child: _formatExample(currentAdjective.reverseExample, context),
               ),
             ],
