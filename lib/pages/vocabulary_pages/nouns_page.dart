@@ -63,7 +63,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
       appBar: CustomAppBar(
         title: 'Nouns',
         actions: [
-          _buildCategoryDropdown(), // استخدام الودجت الجديد
+          _buildCategoryFilterDropdown(), // استخدام الودجت الجديد
         ],
       ),
       body: CustomGradient(
@@ -107,7 +107,7 @@ class NounsPageState extends ConsumerState<NounsPage> {
     );
   }
 
-  Widget _buildCategoryDropdown() {
+  Widget _buildCategoryFilterDropdown() {
     return FutureBuilder<List<String>>(
       future: ref
           .read(databaseHelperProvider)
