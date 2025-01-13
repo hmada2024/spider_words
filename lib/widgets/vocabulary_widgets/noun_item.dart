@@ -70,9 +70,7 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = screenWidth * 0.9;
-    final imageSide =
-        screenWidth * 0.8; // 80% of screen width for both width and height
-    final horizontalMargin = cardWidth * 0.05;
+    final imageSide = screenWidth * 0.75; // 75% of screen width
     final iconSize = imageSide * 0.08;
     final fontSize = imageSide * 0.05;
 
@@ -80,71 +78,72 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
       position: _offsetAnimation,
       child: Container(
         width: cardWidth,
-        margin:
-            EdgeInsets.symmetric(horizontal: horizontalMargin, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(38),
-              spreadRadius: 1,
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
         child: Column(
           children: [
             GestureDetector(
               onTap: () => _playAudio(context, widget.noun.audio),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  width: imageSide,
-                  height: imageSide,
-                  child: Stack(
-                    fit: StackFit.passthrough,
-                    children: [
-                      widget.noun.image != null
-                          ? Image.memory(widget.noun.image!, fit: BoxFit.cover)
-                          : Center(
-                              child: Icon(Icons.image_not_supported,
-                                  size: 50, color: Colors.grey),
-                            ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Icon(
-                          Icons.volume_up,
-                          color: Colors.blue.shade700,
-                          size: iconSize,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(10),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 1),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: SizedBox(
+                    width: imageSide,
+                    height: imageSide,
+                    child: Stack(
+                      fit: StackFit.passthrough,
+                      children: [
+                        widget.noun.image != null
+                            ? Image.memory(widget.noun.image!,
+                                fit: BoxFit.cover)
+                            : Center(
+                                child: Icon(Icons.image_not_supported,
+                                    size: 50, color: Colors.grey),
+                              ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Icon(
+                            Icons.volume_up,
+                            color: Colors.blue.shade700,
+                            size: iconSize,
                           ),
-                          child: Center(
-                            child: Text(
-                              widget.noun.name,
-                              style: TextStyle(
-                                fontSize: fontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                widget.noun.name,
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

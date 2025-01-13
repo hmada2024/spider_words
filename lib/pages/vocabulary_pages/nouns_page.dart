@@ -129,12 +129,10 @@ class NounsPageState extends ConsumerState<NounsPage> {
             'electronics',
             'color',
             'jobs'
-          ].map((String category) {
-            return PopupMenuItem<String>(
-              value: category,
-              child: Text(_formatCategoryName(category)),
-            );
-          }).toList(),
+          ].map((category) => PopupMenuItem<String>(
+                value: category,
+                child: Text(_formatCategoryName(category)),
+              )),
         ];
       },
     );
