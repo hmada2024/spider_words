@@ -2,23 +2,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/models/nouns_model.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_content.dart';
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_logic.dart';
-
-// تعريف Provider لقائمة الأسماء لجلبها بشكل غير متزامن
-final nounsForQuizProvider = FutureProvider.autoDispose
-    .family<List<Noun>, String>((ref, category) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  if (category == 'all') {
-    return dbHelper.getNounsForMatchingQuiz();
-  } else {
-    return dbHelper.getNounsByCategory(category);
-  }
-});
+import 'package:spider_words/providers/noun_provider.dart';
+import 'package:flutter/foundation.dart';
 
 // تعريف Provider للفئة المختارة في لعبة المطابقة
 final selectedQuizCategoryProvider = StateProvider<String>((ref) => 'all');
@@ -27,10 +17,13 @@ final selectedQuizCategoryProvider = StateProvider<String>((ref) => 'all');
 final matchingQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<ImagesMatchingQuizLogic>((ref) {
   final selectedCategory = ref.watch(selectedQuizCategoryProvider);
-  final nouns = ref.watch(nounsForQuizProvider(selectedCategory)).maybeWhen(
-        data: (data) => data,
-        orElse: () => [],
-      ) as List<Noun>;
+  final nouns = ref
+          .watch(nounsProvider)
+          .value
+          ?.where((noun) =>
+              selectedCategory == 'all' || noun.category == selectedCategory)
+          .toList() ??
+      [];
   final audioPlayer = ref.read(audioPlayerProvider);
   return ImagesMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
@@ -40,7 +33,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
 
   const ImagesMatchingQuizPage({super.key});
 
-  String _formatCategoryName(String category) {
+  String formatCategoryName(String category) {
     return category
         .split('_')
         .map((word) => word[0].toUpperCase() + word.substring(1))
@@ -50,7 +43,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategory = ref.watch(selectedQuizCategoryProvider);
-    final nounsState = ref.watch(nounsForQuizProvider(selectedCategory));
+    final nounsState = ref.watch(nounsProvider);
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -63,10 +56,22 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
         child: nounsState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
-          data: (nouns) {
+          data: (allNouns) {
+            final nouns = allNouns
+                .where((noun) =>
+                    selectedCategory == 'all' ||
+                    noun.category == selectedCategory)
+                .toList();
+
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (ref.read(matchingQuizLogicProvider).totalQuestions !=
-                  nouns.length) {
+              final quizLogic = ref.read(matchingQuizLogicProvider);
+              if (listEquals(quizLogic.initialNouns, nouns) == false) {
+                ref.read(matchingQuizLogicProvider).initialNouns = nouns;
+                ref
+                    .read(matchingQuizLogicProvider)
+                    .resetQuizForCategory(selectedCategory);
+              }
+              if (quizLogic.totalQuestions != nouns.length) {
                 ref
                     .read(matchingQuizLogicProvider)
                     .setTotalQuestions(nouns.length);
@@ -105,48 +110,49 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
 
-    return FutureBuilder<List<String>>(
-      future: ref
-          .read(databaseHelperProvider)
-          .getNouns()
-          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error loading categories: ${snapshot.error}');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('No categories available.');
-        } else {
-          final categories = ['all', ...snapshot.data!];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: DropdownButton<String>(
-              value: ref.watch(selectedQuizCategoryProvider),
-              underline: Container(),
-              icon: Icon(Icons.arrow_drop_down,
-                  color: Colors.white, size: dropdownIconSize),
-              dropdownColor: Colors.blueAccent,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
-              onChanged: (String? newValue) {
-                ref.read(selectedQuizCategoryProvider.notifier).state =
-                    newValue!;
-                ref
-                    .read(matchingQuizLogicProvider)
-                    .resetQuizForCategory(newValue);
-              },
-              items: categories.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value == 'all'
-                      ? 'All Categories'
-                      : _formatCategoryName(value)),
-                );
-              }).toList(),
-            ),
-          );
-        }
+    return Consumer(
+      builder: (context, ref, _) {
+        final nounsAsyncValue = ref.watch(nounsProvider);
+        return nounsAsyncValue.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) =>
+              Text('Error loading categories: $error'),
+          data: (nouns) {
+            final categories = [
+              'all',
+              ...nouns.map((noun) => noun.category).toSet()
+            ];
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: DropdownButton<String>(
+                value: ref.watch(selectedQuizCategoryProvider),
+                underline: Container(),
+                icon: Icon(Icons.arrow_drop_down,
+                    color: Colors.white, size: dropdownIconSize),
+                dropdownColor: Colors.blueAccent,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    ref.read(selectedQuizCategoryProvider.notifier).state =
+                        newValue;
+                    ref
+                        .read(matchingQuizLogicProvider)
+                        .resetQuizForCategory(newValue);
+                  }
+                },
+                items: categories.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value == 'all'
+                        ? 'All Categories'
+                        : formatCategoryName(value)),
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        );
       },
     );
   }

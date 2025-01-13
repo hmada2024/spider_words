@@ -1,28 +1,19 @@
 // lib/pages/quiz_pages/adjective_opposite_quiz_page.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spider_words/models/adjective_model.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/adjective_opposite_quiz_content.dart';
 import 'package:spider_words/widgets/quiz_widgets/adjective_opposite_quiz_logic.dart';
-
-// Provider لجلب قائمة الصفات من قاعدة البيانات
-final adjectivesForOppositeQuizProvider =
-    FutureProvider.autoDispose<List<Adjective>>((ref) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  return dbHelper.getAdjectives();
-});
+import 'package:spider_words/providers/adjective_provider.dart';
 
 // Provider لإنشاء وإدارة حالة اختبار متضادات الصفات
 final adjectiveOppositeQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<AdjectiveOppositeQuizLogic>((ref) {
   // قراءة قائمة الصفات من البروفايدر الآخر
-  final adjectives = ref.watch(adjectivesForOppositeQuizProvider).maybeWhen(
-        data: (data) => data,
-        orElse: () => [],
-      ) as List<Adjective>;
+  final adjectives = ref.watch(adjectivesProvider).value ?? [];
   // قراءة مشغل الصوت
   final audioPlayer = ref.read(audioPlayerProvider);
   // إنشاء مدير حالة الاختبار وتمرير البيانات اللازمة
@@ -38,7 +29,7 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // قراءة حالة قائمة الصفات
-    final adjectivesState = ref.watch(adjectivesForOppositeQuizProvider);
+    final adjectivesState = ref.watch(adjectivesProvider);
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Adjective Opposites Quiz'),
@@ -51,8 +42,16 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
           data: (adjectives) {
             // تحديث العدد الكلي للأسئلة بعد تحميل البيانات
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (ref.read(adjectiveOppositeQuizLogicProvider).totalQuestions !=
-                  adjectives.length) {
+              final quizLogic = ref.read(adjectiveOppositeQuizLogicProvider);
+              if (listEquals(quizLogic.initialAdjectives, adjectives) ==
+                  false) {
+                ref.read(adjectiveOppositeQuizLogicProvider).initialAdjectives =
+                    adjectives;
+                ref
+                    .read(adjectiveOppositeQuizLogicProvider)
+                    .resetQuizForCategory('all'); // Reset with new data
+              }
+              if (quizLogic.totalQuestions != adjectives.length) {
                 ref
                     .read(adjectiveOppositeQuizLogicProvider)
                     .setTotalQuestions(adjectives.length);
