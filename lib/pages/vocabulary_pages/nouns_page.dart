@@ -7,6 +7,7 @@ import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
 import 'package:spider_words/widgets/vocabulary_widgets/noun_list.dart';
 import '../../main.dart';
+import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart'; // استيراد الودجت الجديد
 
 // Provider to fetch nouns by category
 final nounsByCategoryProvider =
@@ -61,7 +62,9 @@ class NounsPageState extends ConsumerState<NounsPage> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Nouns',
-        leading: _buildCategoryDropdown(),
+        actions: [
+          _buildCategoryDropdown(), // استخدام الودجت الجديد
+        ],
       ),
       body: CustomGradient(
         child: RefreshIndicator(
@@ -105,35 +108,29 @@ class NounsPageState extends ConsumerState<NounsPage> {
   }
 
   Widget _buildCategoryDropdown() {
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.settings, color: Colors.white),
-      onSelected: (String newValue) {
-        ref.read(selectedCategoryProvider.notifier).state = newValue;
-      },
-      itemBuilder: (BuildContext context) {
-        return [
-          const PopupMenuItem<String>(
-            value: 'all',
-            child: Text('All Categories'),
-          ),
-          const PopupMenuDivider(),
-          ...[
-            'animal',
-            'bird',
-            'fruit',
-            'vegetable',
-            'home_stuff',
-            'school_supplies',
-            'stationery',
-            'tools',
-            'electronics',
-            'color',
-            'jobs'
-          ].map((category) => PopupMenuItem<String>(
-                value: category,
-                child: Text(_formatCategoryName(category)),
-              )),
-        ];
+    return FutureBuilder<List<String>>(
+      future: ref
+          .read(databaseHelperProvider)
+          .getNouns()
+          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error loading categories: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text('No categories available.');
+        } else {
+          final categories = ['all', ...snapshot.data!];
+          return CategoryFilterDropdown(
+            // استخدام الودجت المفصول
+            categories: categories,
+            selectedCategory: ref.watch(selectedCategoryProvider),
+            onCategoryChanged: (newValue) {
+              ref.read(selectedCategoryProvider.notifier).state = newValue!;
+            },
+          );
+        }
       },
     );
   }
