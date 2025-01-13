@@ -27,6 +27,7 @@ class CategoryFilterDropdown extends ConsumerWidget {
       padding: const EdgeInsets.only(right: 8.0),
       child: IconButton(
         icon: const Icon(Icons.filter_list, color: Colors.white),
+        tooltip: 'Filter Categories', // إضافة تلميح عند تمرير الماوس
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -45,7 +46,7 @@ class CategoryFilterDropdown extends ConsumerWidget {
                     onTap: () {
                       onCategoryChanged(
                           category); // استدعاء الدالة لتحديث الفئة المختارة
-                      Navigator.pop(context);
+                      Navigator.pop(context); // إغلاق النافذة المنزلقة
                     },
                   );
                 },
