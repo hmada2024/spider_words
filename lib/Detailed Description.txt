@@ -1,6 +1,7 @@
 هام لمعرفه التطبيق
 
 هيكل التطبيق (المخطط)
+
 lib/
 ├── data/
 │   └── database_helper.dart
@@ -25,9 +26,11 @@ lib/
 ├── utils/
 │   ├── app_constants.dart
 │   ├── constants.dart
-│   └── screen_utils.dart
+│   ├── screen_utils.dart
+│   ├── string_formatter.dart
 ├── widgets/
 │   ├── common_widgets/
+│   │   ├── category_filter_widget.dart  
 │   │   ├── custom_app_bar.dart
 │   │   ├── custom_gradient.dart
 │   │   └── custom_home_button.dart
@@ -43,7 +46,6 @@ lib/
 │       ├── noun_item.dart
 │       └── noun_list.dart
 └── main.dart
-
 
 وصف شامل للتطبيق:
 التطبيق هو "Spider Words"، وهو تطبيق لتعلم المفردات الإنجليزية من خلال تصنيفات مختلفة مثل الصفات (Adjectives)، الأسماء (Nouns)، والكلمات المركبة (Compound Words). التطبيق يوفر واجهة تفاعلية تسمح للمستخدمين بتعلم المفردات من خلال الاستماع إلى النطق الصحيح، رؤية الصور المرتبطة بالكلمات، والتفاعل مع الاختبارات التي تساعد على تثبيت المعلومات.
