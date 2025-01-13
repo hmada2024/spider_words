@@ -55,11 +55,22 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
     super.dispose();
   }
 
-  Future<void> _playAudio(BuildContext context, Uint8List? audioBytes) async {
+  Future<void> _playAudio(Uint8List? audioBytes) async {
     if (audioBytes != null) {
-      await widget.audioPlayer.play(BytesSource(audioBytes));
+      try {
+        await widget.audioPlayer.play(BytesSource(audioBytes));
+      } catch (e) {
+        debugPrint('Error playing audio: $e');
+        if (mounted) {
+          // فحص mounted فقط
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to play audio: $e')),
+          );
+        }
+      }
     } else {
       if (mounted) {
+        // فحص mounted فقط
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No audio available.')),
         );
@@ -68,7 +79,6 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
   }
 
   Widget _buildTextWithPlayButton({
-    required BuildContext context,
     required String text,
     required Uint8List? audioBytes,
     required double fontSize,
@@ -118,7 +128,7 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
       children: [
         IconButton(
           icon: Icon(Icons.volume_up, color: Colors.blueAccent, size: iconSize),
-          onPressed: () => _playAudio(context, audioBytes),
+          onPressed: () => _playAudio(audioBytes),
         ),
         SizedBox(width: iconSpacing),
         Expanded(
@@ -167,14 +177,14 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
                       IconButton(
                         icon: Icon(Icons.volume_up,
                             color: Colors.blueAccent, size: iconSize),
-                        onPressed: () => _playAudio(
-                            context, widget.adjective.mainAdjectiveAudio),
+                        onPressed: () =>
+                            _playAudio(widget.adjective.mainAdjectiveAudio),
                       ),
                       SizedBox(width: iconSpacing),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => _playAudio(
-                              context, widget.adjective.mainAdjectiveAudio),
+                          onTap: () =>
+                              _playAudio(widget.adjective.mainAdjectiveAudio),
                           child: Text(
                             widget.adjective.mainAdjective,
                             style: TextStyle(
@@ -187,7 +197,6 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
                   ),
                   SizedBox(height: verticalPadding),
                   _buildTextWithPlayButton(
-                    context: context,
                     text: widget.adjective.mainExample,
                     audioBytes: widget.adjective.mainExampleAudio,
                     fontSize: exampleFontSize,
@@ -200,14 +209,14 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
                       IconButton(
                         icon: Icon(Icons.volume_up,
                             color: Colors.blueAccent, size: iconSize),
-                        onPressed: () => _playAudio(
-                            context, widget.adjective.reverseAdjectiveAudio),
+                        onPressed: () =>
+                            _playAudio(widget.adjective.reverseAdjectiveAudio),
                       ),
                       SizedBox(width: iconSpacing),
                       Expanded(
                         child: GestureDetector(
                           onTap: () => _playAudio(
-                              context, widget.adjective.reverseAdjectiveAudio),
+                              widget.adjective.reverseAdjectiveAudio),
                           child: Text(
                             widget.adjective.reverseAdjective,
                             style: TextStyle(
@@ -220,7 +229,6 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
                   ),
                   SizedBox(height: verticalPadding),
                   _buildTextWithPlayButton(
-                    context: context,
                     text: widget.adjective.reverseExample,
                     audioBytes: widget.adjective.reverseExampleAudio,
                     fontSize: exampleFontSize,

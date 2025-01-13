@@ -63,6 +63,7 @@ class _CompoundWordCardState extends State<CompoundWordCard>
       } catch (e) {
         debugPrint('Error playing audio: $e');
         if (mounted) {
+          // فحص إذا كان الـ Widget لا يزال mounted
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Failed to play audio: $e'),
@@ -72,6 +73,7 @@ class _CompoundWordCardState extends State<CompoundWordCard>
       }
     } else {
       if (mounted) {
+        // فحص إذا كان الـ Widget لا يزال mounted
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('No audio available.'),

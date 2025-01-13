@@ -54,11 +54,22 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
     super.dispose();
   }
 
-  Future<void> _playAudio(BuildContext context, Uint8List? audioBytes) async {
+  Future<void> _playAudio(Uint8List? audioBytes) async {
     if (audioBytes != null) {
-      await widget.audioPlayer.play(BytesSource(audioBytes));
+      try {
+        await widget.audioPlayer.play(BytesSource(audioBytes));
+      } catch (e) {
+        debugPrint('Error playing audio: $e');
+        if (mounted) {
+          // فحص mounted فقط
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to play audio: $e')),
+          );
+        }
+      }
     } else {
       if (mounted) {
+        // فحص mounted فقط
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No audio available.')),
         );
@@ -82,7 +93,7 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
         child: Column(
           children: [
             GestureDetector(
-              onTap: () => _playAudio(context, widget.noun.audio),
+              onTap: () => _playAudio(widget.noun.audio),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
@@ -105,10 +116,17 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
                       children: [
                         widget.noun.image != null
                             ? Image.memory(widget.noun.image!,
-                                fit: BoxFit.cover)
-                            : Center(
-                                child: Icon(Icons.image_not_supported,
-                                    size: 50, color: Colors.grey),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                debugPrint('Error loading image: $error');
+                                return Image.asset(
+                                  'assets/images/image_placeholder.png', // مسار الصورة البديلة
+                                  fit: BoxFit.cover,
+                                );
+                              })
+                            : Image.asset(
+                                'assets/images/image_placeholder.png', // استخدام الصورة البديلة في حالة عدم وجود صورة
+                                fit: BoxFit.cover,
                               ),
                         Positioned(
                           top: 10,
