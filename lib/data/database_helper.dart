@@ -78,7 +78,7 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint("Error retrieving adjectives: $e");
       throw Exception(
-          "Failed to retrieve adjectives from the database"); // تحسين رسالة الخطأ
+          "Failed to retrieve adjectives from the database. Error: $e"); // تحسين رسالة الخطأ
     }
   }
 
@@ -104,7 +104,7 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint("Error retrieving nouns by category '$category': $e");
       throw Exception(
-          "Failed to retrieve nouns for the category '$category'"); // تحسين رسالة الخطأ
+          "Failed to retrieve nouns for the category '$category'. Error: $e"); // تحسين رسالة الخطأ
     }
   }
 
@@ -127,7 +127,7 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint("Error retrieving nouns: $e");
       throw Exception(
-          "Failed to retrieve nouns from the database"); // تحسين رسالة الخطأ
+          "Failed to retrieve nouns from the database. Error: $e"); // تحسين رسالة الخطأ
     }
   }
 
@@ -152,7 +152,7 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint("Error retrieving compound words: $e");
       throw Exception(
-          "Failed to retrieve compound words from the database"); // تحسين رسالة الخطأ
+          "Failed to retrieve compound words from the database. Error: $e"); // تحسين رسالة الخطأ
     }
   }
 
