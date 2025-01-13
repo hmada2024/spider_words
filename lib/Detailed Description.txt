@@ -1,3 +1,6 @@
+ 
+FILE Detailed Description
+
 هام لمعرفه التطبيق
 
 هيكل التطبيق (المخطط)
@@ -17,9 +20,10 @@ lib/
 │   │   ├── compound_words_page.dart
 │   │   └── nouns_page.dart
 │   └── quiz_pages/
+│       ├── adjective_opposite_quiz_page.dart
 │       ├── images_matching_quiz_page.dart
 │       └── nouns_matching_quiz_page.dart
-├── providers/  <-- المجلد الجديد بتاع الـ Providers
+├── providers/
 │   ├── adjective_provider.dart
 │   ├── compound_word_provider.dart
 │   └── noun_provider.dart
@@ -30,11 +34,13 @@ lib/
 │   ├── string_formatter.dart
 ├── widgets/
 │   ├── common_widgets/
-│   │   ├── category_filter_widget.dart  
+│   │   ├── category_filter_widget.dart
 │   │   ├── custom_app_bar.dart
 │   │   ├── custom_gradient.dart
 │   │   └── custom_home_button.dart
 │   ├── quiz_widgets/
+│   │   ├── adjective_opposite_quiz_content.dart
+│   │   ├── adjective_opposite_quiz_logic.dart
 │   │   ├── images_matching_quiz_content.dart
 │   │   ├── images_matching_quiz_logic.dart
 │   │   ├── nouns_matching_quiz_content.dart
@@ -59,11 +65,13 @@ lib/
 
 الاختبارات التفاعلية:
 
-يوجد نوعان من الاختبارات:
+يوجد ثلاثة أنواع من الاختبارات:
 
 اختبار مطابقة الصور: حيث يتم عرض صورة ويجب على المستخدم اختيار الكلمة الصحيحة من بين الخيارات.
 
 اختبار مطابقة الأسماء: حيث يتم عرض اسم الكلمة ويجب على المستخدم اختيار الصورة الصحيحة من بين الخيارات.
+
+اختبار أضداد الصفات: حيث يتم عرض صفة ويجب على المستخدم اختيار ضدها الصحيح من بين الخيارات.
 
 يتم تتبع النتائج وعرضها للمستخدم بعد الانتهاء من الاختبار.
 
@@ -73,10 +81,14 @@ lib/
 
 يتم عرض الكلمات والصور بشكل بطاقات (Cards) مع إمكانية الاستماع إلى النطق الصحيح للكلمة.
 
+تصفية الفئات:
+
+يمكن للمستخدم تصفية قوائم المفردات والاختبارات حسب فئات محددة لتركيز التعلم.
+
 وصف قاعدة البيانات:
 قاعدة البيانات المستخدمة في التطبيق هي SQLite، وتحتوي على عدة جداول لتخزين البيانات الخاصة بالمفردات والاختبارات. قاعدة البيانات مخزنة في ملف nouns.db، ويتم نسخها من ملف موجود في مجلد assets عند أول تشغيل للتطبيق.
 
-الجداول الرئيسية في قاعدة البيانات:
+الجدول الرئيسية في قاعدة البيانات:
 جدول الأسماء (Nouns):
 
 يحتوي على الأسماء (Nouns) مثل الحيوانات، الفواكه، الخضروات، وغيرها.
@@ -146,6 +158,12 @@ nouns_matching_quiz_page.dart:
 
 يتم استخدام ChangeNotifierProvider لإدارة حالة الاختبار.
 
+adjective_opposite_quiz_page.dart:
+
+المهمة: عرض اختبار أضداد الصفات حيث يتم عرض صفة ويجب على المستخدم اختيار الضد الصحيح.
+
+يتم استخدام ChangeNotifierProvider لإدارة حالة الاختبار.
+
 adjective_card.dart:
 
 المهمة: عرض بطاقة تفاعلية للصفة (Adjective) مع إمكانية الاستماع إلى النطق الصحيح.
@@ -169,16 +187,14 @@ compound_word_card.dart:
 assets/nouns.db
 
 Table: sqlite_sequence
-  Column: name - Type: 
-  Column: seq - Type: 
-
+  Column: name - Type:
+  Column: seq - Type:
 
 Table: default_assets
-  Column: id - Type: INTEGER     
-  Column: category - Type: TEXT  
-  Column: image - Type: BLOB     
+  Column: id - Type: INTEGER
+  Column: category - Type: TEXT
+  Column: image - Type: BLOB
   Column: audio - Type: BLOB
-
 
 Table: nouns
   Column: id - Type: INTEGER
@@ -186,7 +202,6 @@ Table: nouns
   Column: image - Type: BLOB
   Column: audio - Type: BLOB
   Column: category - Type: TEXT
-
 
 Table: adjectives
   Column: id - Type: INTEGER
@@ -198,7 +213,6 @@ Table: adjectives
   Column: reverse_adjective_audio - Type: BLOB
   Column: main_example_audio - Type: BLOB
   Column: reverse_example_audio - Type: BLOB
-
 
 Table: compound_words
   Column: id - Type: INTEGER
