@@ -1,5 +1,4 @@
 // lib/pages/vocabulary_pages/nouns_page.dart
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,25 +61,43 @@ class NounsPageState extends ConsumerState<NounsPage> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Nouns',
-        actions: [
-          _buildCategoryDropdown(),
-        ],
+        leading: _buildCategoryDropdown(),
       ),
       body: CustomGradient(
         child: RefreshIndicator(
           onRefresh: () async {
-            // Trigger a refetch by invalidating the provider
             ref.invalidate(nounsByCategoryProvider(selectedCategory));
             await ref.read(nounsByCategoryProvider(selectedCategory).future);
           },
-          child: nounsAsyncValue.when(
-            loading: () => const Center(
-                child: CircularProgressIndicator(color: Colors.white)),
-            error: (error, stackTrace) => Center(
-                child: Text('Error: $error',
-                    style: const TextStyle(color: Colors.white))),
-            data: (nouns) => NounList(
-                nounsFuture: Future.value(nouns), audioPlayer: _audioPlayer),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    selectedCategory == 'all'
+                        ? 'All Categories'
+                        : _formatCategoryName(selectedCategory),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: nounsAsyncValue.when(
+                  loading: () => const Center(
+                      child: CircularProgressIndicator(color: Colors.white)),
+                  error: (error, stackTrace) => Center(
+                      child: Text('Error: $error',
+                          style: const TextStyle(color: Colors.white))),
+                  data: (nouns) => NounList(
+                      nounsFuture: Future.value(nouns),
+                      audioPlayer: _audioPlayer),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -88,47 +105,37 @@ class NounsPageState extends ConsumerState<NounsPage> {
   }
 
   Widget _buildCategoryDropdown() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final dropdownIconSize = max(18.0, min(screenWidth * 0.05, 24.0));
-
-    return FutureBuilder<List<String>>(
-      future: ref
-          .read(databaseHelperProvider)
-          .getNouns()
-          .then((nouns) => nouns.map((noun) => noun.category).toSet().toList()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error loading categories: ${snapshot.error}');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('No categories available.');
-        } else {
-          final categories = ['all', ...snapshot.data!];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: DropdownButton<String>(
-              value: ref.watch(selectedCategoryProvider),
-              underline: Container(),
-              icon: Icon(Icons.arrow_drop_down,
-                  color: Colors.white, size: dropdownIconSize),
-              dropdownColor: Colors.blueAccent,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
-              onChanged: (String? newValue) {
-                ref.read(selectedCategoryProvider.notifier).state = newValue!;
-              },
-              items: categories.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value == 'all'
-                      ? 'All Categories'
-                      : _formatCategoryName(value)),
-                );
-              }).toList(),
-            ),
-          );
-        }
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.settings, color: Colors.white),
+      onSelected: (String newValue) {
+        ref.read(selectedCategoryProvider.notifier).state = newValue;
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem<String>(
+            value: 'all',
+            child: Text('All Categories'),
+          ),
+          const PopupMenuDivider(),
+          ...[
+            'animal',
+            'bird',
+            'fruit',
+            'vegetable',
+            'home_stuff',
+            'school_supplies',
+            'stationery',
+            'tools',
+            'electronics',
+            'color',
+            'jobs'
+          ].map((String category) {
+            return PopupMenuItem<String>(
+              value: category,
+              child: Text(_formatCategoryName(category)),
+            );
+          }).toList(),
+        ];
       },
     );
   }

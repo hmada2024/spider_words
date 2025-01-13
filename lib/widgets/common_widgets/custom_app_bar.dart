@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final List<Widget>? actions; //  إضافة قائمة actions
+  final Widget? leading;
+  final List<Widget>? actions;
 
-  const CustomAppBar({super.key, required this.title, this.actions});
+  const CustomAppBar(
+      {super.key, required this.title, this.actions, this.leading});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -13,7 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize = screenWidth * 0.05; // حجم الخط كنسبة من عرض الشاشة
+    final fontSize = screenWidth * 0.05;
 
     return AppBar(
       title: Text(
@@ -25,12 +27,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             Shadow(
               blurRadius: 3.0,
               color: Colors.black26,
-              offset: Offset(1.0, 1.0),
+              offset: const Offset(1.0, 1.0),
             ),
           ],
         ),
       ),
-      actions: actions, // تعيين قائمة  actions
+      leading: leading,
+      actions: actions,
       centerTitle: true,
       elevation: 5,
     );
