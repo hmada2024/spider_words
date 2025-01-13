@@ -25,21 +25,34 @@ class CategoryFilterDropdown extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
-      child: DropdownButton<String>(
-        value: selectedCategory,
-        underline: Container(),
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-        dropdownColor: Colors.blueAccent,
-        style:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        onChanged: onCategoryChanged,
-        items: categories.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-                value == 'all' ? 'All Categories' : _formatCategoryName(value)),
+      child: IconButton(
+        icon: const Icon(Icons.filter_list, color: Colors.white),
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return ListTile(
+                    title: Text(
+                      category == 'all'
+                          ? 'All Categories'
+                          : _formatCategoryName(category),
+                    ),
+                    onTap: () {
+                      onCategoryChanged(
+                          category); // استدعاء الدالة لتحديث الفئة المختارة
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
+            },
           );
-        }).toList(),
+        },
       ),
     );
   }
