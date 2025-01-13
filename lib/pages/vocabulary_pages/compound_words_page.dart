@@ -41,8 +41,23 @@ class CompoundWordsPageState extends ConsumerState<CompoundWordsPage> {
             loading: () => const Center(
                 child: CircularProgressIndicator(color: Colors.white)),
             error: (error, stackTrace) => Center(
-                child: Text('Error: $error',
-                    style: const TextStyle(color: Colors.white))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      'Failed to load compound words: $error', // رسالة خطأ مفصلة
+                      style: const TextStyle(color: Colors.white)),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.invalidate(
+                          compoundWordsProvider); // إعادة محاولة التحميل
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
             data: (compoundWords) => CustomScrollView(
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),

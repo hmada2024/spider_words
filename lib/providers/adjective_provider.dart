@@ -5,6 +5,10 @@ import 'package:spider_words/models/adjective_model.dart';
 
 final adjectivesProvider =
     FutureProvider.autoDispose<List<Adjective>>((ref) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  return await dbHelper.getAdjectives();
+  try {
+    final dbHelper = ref.read(databaseHelperProvider);
+    return await dbHelper.getAdjectives();
+  } catch (e) {
+    throw Exception('Failed to load adjectives: $e');
+  }
 });

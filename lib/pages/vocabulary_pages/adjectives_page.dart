@@ -43,8 +43,23 @@ class AdjectivesPageState extends ConsumerState<AdjectivesPage> {
                 loading: () => const Center(
                     child: CircularProgressIndicator(color: Colors.white)),
                 error: (error, stackTrace) => Center(
-                    child: Text('Error: $error',
-                        style: const TextStyle(color: Colors.white))),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          'Failed to load adjectives: $error', // رسالة خطأ مفصلة
+                          style: const TextStyle(color: Colors.white)),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.invalidate(
+                              adjectivesProvider); // إعادة محاولة التحميل
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
                 data: (adjectives) => AdjectiveList(
                   adjectivesFuture: Future.value(adjectives),
                   audioPlayer: _audioPlayer,

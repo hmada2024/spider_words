@@ -69,8 +69,22 @@ class NounsPageState extends ConsumerState<NounsPage> {
                   loading: () => const Center(
                       child: CircularProgressIndicator(color: Colors.white)),
                   error: (error, stackTrace) => Center(
-                      child: Text('Error: $error',
-                          style: const TextStyle(color: Colors.white))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Failed to load nouns: $error', // رسالة خطأ مفصلة
+                            style: const TextStyle(color: Colors.white)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            ref.invalidate(
+                                nounsProvider); // إعادة محاولة التحميل
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
                   data: (nouns) {
                     final filteredNouns = selectedCategory == 'all'
                         ? nouns

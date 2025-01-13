@@ -4,6 +4,10 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/models/nouns_model.dart';
 
 final nounsProvider = FutureProvider.autoDispose<List<Noun>>((ref) async {
-  final dbHelper = ref.read(databaseHelperProvider);
-  return await dbHelper.getNouns();
+  try {
+    final dbHelper = ref.read(databaseHelperProvider);
+    return await dbHelper.getNouns();
+  } catch (e) {
+    throw Exception('Failed to load nouns: $e'); // رسالة خطأ أوضح
+  }
 });
