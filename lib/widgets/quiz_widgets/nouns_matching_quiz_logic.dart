@@ -40,6 +40,11 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
   }
 
   void _startNewQuiz() {
+    if (initialNouns.isEmpty) {
+      debugPrint('NounsMatchingQuizLogic: initialNouns is empty.');
+      // يمكنك هنا معالجة هذا السيناريو.
+      return;
+    }
     _nouns = List<Noun>.from(initialNouns)..shuffle();
     _totalQuestions = initialNouns.length;
     _nextQuestion();
@@ -50,9 +55,15 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
       _isCorrect = false;
       _isWrong = false;
       _isInteractionDisabled = false;
-      _currentNoun = _nouns.removeAt(0);
-      _answerOptions = _generateAnswerOptions(_currentNoun!);
-      _answerOptions.shuffle();
+      try {
+        _currentNoun = _nouns.removeAt(0);
+        _answerOptions = _generateAnswerOptions(_currentNoun!);
+        _answerOptions.shuffle();
+      } catch (e) {
+        debugPrint('Error in _nextQuestion: $e');
+        // يمكنك هنا معالجة الخطأ.
+        return;
+      }
       notifyListeners();
     } else {
       // Game Over
@@ -76,27 +87,49 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
       }
     }
     while (options.length < 4 && initialNouns.isNotEmpty) {
-      final randomNoun = initialNouns[Random().nextInt(initialNouns.length)];
-      if (!options.any((option) => option.id == randomNoun.id)) {
-        options.add(randomNoun);
+      try {
+        final randomNoun = initialNouns[Random().nextInt(initialNouns.length)];
+        if (!options.any((option) => option.id == randomNoun.id)) {
+          options.add(randomNoun);
+        }
+      } catch (e) {
+        debugPrint('Error generating answer options: $e');
+        break;
       }
     }
     return options..shuffle();
   }
 
-  Future<void> _playAudio(Uint8List? audioBytes) async {
+  Future<void> _playAudio(Uint8List? audioBytes, BuildContext? context) async {
     if (audioBytes != null) {
       try {
         await audioPlayer.play(BytesSource(audioBytes));
       } catch (e) {
         debugPrint('Error playing audio: $e');
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
+          );
+        }
+      }
+    } else {
+      debugPrint('Audio bytes are null.');
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
+        );
       }
     }
   }
 
-  Future<void> playCurrentNounAudio() async {
+  Future<void> playCurrentNounAudio(BuildContext context) async {
     if (_currentNoun?.audio != null) {
-      await _playAudio(_currentNoun!.audio);
+      await _playAudio(_currentNoun!.audio, context);
+    } else {
+      debugPrint('Current noun audio is null.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
+      );
     }
   }
 
@@ -109,7 +142,7 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAnswer(Noun selectedNoun) async {
+  Future<void> checkAnswer(Noun selectedNoun, BuildContext context) async {
     _answeredQuestions++;
     _isInteractionDisabled = true;
     notifyListeners();
@@ -131,6 +164,9 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
   }
 
   void resetQuiz() {
+    if (initialNouns.isEmpty) {
+      return; // منع إعادة التعيين إذا لم تكن هناك بيانات أساسية
+    }
     _score = 0;
     _answeredQuestions = 0;
     _startNewQuiz();
@@ -138,6 +174,9 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
   }
 
   void resetQuizForCategory(String category) {
+    if (initialNouns.isEmpty) {
+      return;
+    }
     if (category == 'all') {
       _nouns = List<Noun>.from(initialNouns)..shuffle();
     } else {

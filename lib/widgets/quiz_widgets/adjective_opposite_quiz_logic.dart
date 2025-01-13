@@ -45,6 +45,12 @@ class AdjectiveOppositeQuizLogic extends ChangeNotifier {
 
   // بدء اختبار جديد
   void _startNewQuiz() {
+    if (initialAdjectives.isEmpty) {
+      debugPrint(
+          'AdjectiveOppositeQuizLogic: initialAdjectives is empty.'); // تسجيل الخطأ
+      // يمكنك هنا عرض رسالة خطأ للمستخدم أو اتخاذ إجراء آخر مناسب
+      return;
+    }
     _adjectives = List<Adjective>.from(initialAdjectives)
       ..shuffle(); // نسخ الصفات وعمل خلط عشوائي
     _totalQuestions = initialAdjectives.length; // تحديد العدد الكلي للأسئلة
@@ -59,11 +65,17 @@ class AdjectiveOppositeQuizLogic extends ChangeNotifier {
       _isWrong = false;
       _selectedAnswer = null;
       _isInteractionDisabled = false;
-      _currentAdjective =
-          _adjectives.removeAt(0); // اختيار الصفة التالية وإزالتها من القائمة
-      _answerOptions =
-          _generateAnswerOptions(_currentAdjective!); // إنشاء خيارات الإجابة
-      _answerOptions.shuffle(); // عمل خلط عشوائي لخيارات الإجابة
+      try {
+        _currentAdjective =
+            _adjectives.removeAt(0); // اختيار الصفة التالية وإزالتها من القائمة
+        _answerOptions =
+            _generateAnswerOptions(_currentAdjective!); // إنشاء خيارات الإجابة
+        _answerOptions.shuffle(); // عمل خلط عشوائي لخيارات الإجابة
+      } catch (e) {
+        debugPrint('Error in _nextQuestion: $e');
+        // يمكنك هنا معالجة الخطأ، مثل إعادة تعيين الاختبار أو عرض رسالة خطأ
+        return;
+      }
       notifyListeners(); // إعلام المستمعين بالتغييرات في الحالة
     } else {
       // تم الانتهاء من جميع الأسئلة (يمكن إضافة منطق هنا لنهاية الاختبار)
@@ -108,8 +120,14 @@ class AdjectiveOppositeQuizLogic extends ChangeNotifier {
         await audioPlayer
             .play(BytesSource(_currentAdjective!.mainAdjectiveAudio!));
       } catch (e) {
-        debugPrint('Error playing audio: $e');
+        debugPrint('Error playing main adjective audio: $e');
+        throw Exception(
+            'Failed to play audio.'); // رمي الخطأ ليتم التعامل معه في الواجهة
       }
+    } else {
+      debugPrint(
+          'Main adjective audio is null for ${_currentAdjective?.mainAdjective}');
+      throw Exception('Audio file not found.');
     }
   }
 
@@ -155,6 +173,9 @@ class AdjectiveOppositeQuizLogic extends ChangeNotifier {
 
   // إعادة تعيين الاختبار
   void resetQuiz() {
+    if (initialAdjectives.isEmpty) {
+      return; // منع إعادة التعيين إذا لم تكن هناك بيانات أساسية
+    }
     _score = 0;
     _answeredQuestions = 0;
     _startNewQuiz();
@@ -164,6 +185,9 @@ class AdjectiveOppositeQuizLogic extends ChangeNotifier {
   // إعادة تعيين الاختبار لفئة معينة (في هذا المثال، يتم التعامل مع جميع الصفات)
   void resetQuizForCategory(String category) {
     // لا يوجد فئات للصفات في هذا المثال، لذلك يتم إعادة تعيين الاختبار باستخدام جميع الصفات
+    if (initialAdjectives.isEmpty) {
+      return;
+    }
     _adjectives = List<Adjective>.from(initialAdjectives)..shuffle();
     _score = 0;
     _answeredQuestions = 0;

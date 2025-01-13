@@ -127,10 +127,10 @@ class NounsMatchingQuizPage extends ConsumerWidget {
                   ref.watch(audioImageMatchingQuizLogicProvider).totalQuestions,
               onOptionSelected: (noun) => ref
                   .read(audioImageMatchingQuizLogicProvider)
-                  .checkAnswer(noun),
+                  .checkAnswer(noun, context),
               playCurrentNounAudio: () => ref
                   .read(audioImageMatchingQuizLogicProvider)
-                  .playCurrentNounAudio(),
+                  .playCurrentNounAudio(context),
               isInteractionDisabled: ref
                   .watch(audioImageMatchingQuizLogicProvider)
                   .isInteractionDisabled,

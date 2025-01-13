@@ -46,7 +46,15 @@ class NounsMatchingQuizContent extends ConsumerWidget {
           await audioPlayer.play(BytesSource(audioBytes));
         } catch (e) {
           debugPrint('Error playing audio: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
+          );
         }
+      } else {
+        debugPrint('Audio bytes are null for this noun.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
+        );
       }
     }
 
@@ -144,8 +152,15 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                           ? Image.memory(
                               currentNoun!.image!,
                               fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                debugPrint(
+                                    'Error loading image for ${currentNoun?.name}: $error');
+                                return Image.asset(
+                                    'assets/images/placeholder_image.png');
+                              },
                             )
-                          : const Icon(Icons.image_not_supported, size: 50),
+                          : Image.asset('assets/images/placeholder_image.png',
+                              fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -153,10 +168,15 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                   // Position the icon
                   top: 5,
                   right: 5,
-                  child: Icon(
-                    Icons.volume_up,
-                    color: Colors.blue,
-                    size: screenWidth * 0.06, // Adjust size as needed
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.volume_up,
+                      color: Colors.blue,
+                      size: screenWidth * 0.06, // Adjust size as needed
+                    ),
+                    onPressed: isInteractionDisabled
+                        ? null
+                        : () => playAudio(currentNoun?.audio),
                   ),
                 ),
               ],
@@ -167,59 +187,61 @@ class NounsMatchingQuizContent extends ConsumerWidget {
                   spaceBetweenImageAndOptions), // Added SizedBox for spacing between image and options.
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              childAspectRatio: 3.0,
-              crossAxisSpacing: optionSpacing,
-              mainAxisSpacing: optionSpacing,
-              children: answerOptions.map((option) {
-                final isCorrectOption = option.id == currentNoun?.id;
-                final isAnswered = isCorrect || isWrong;
-                Color? buttonColor = Colors.blue;
-                if (isAnswered) {
-                  buttonColor = isCorrectOption
-                      ? AppConstants.correctColor
-                      : AppConstants.wrongColor;
-                }
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                          color: const Color.fromARGB(255, 6, 0, 0)
-                              .withValues(alpha: 3),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(2, 2)),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      onOptionSelected(option);
-                      if (isCorrect) {
-                        playCorrectSound();
+            child: answerOptions.isEmpty
+                ? const Center(child: Text('لا توجد خيارات إجابة.'))
+                : GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.0,
+                    crossAxisSpacing: optionSpacing,
+                    mainAxisSpacing: optionSpacing,
+                    children: answerOptions.map((option) {
+                      final isCorrectOption = option.id == currentNoun?.id;
+                      final isAnswered = isCorrect || isWrong;
+                      Color? buttonColor = Colors.blue;
+                      if (isAnswered) {
+                        buttonColor = isCorrectOption
+                            ? AppConstants.correctColor
+                            : AppConstants.wrongColor;
                       }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: buttonColor,
-                      padding:
-                          EdgeInsets.symmetric(vertical: buttonPaddingVertical),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      option.name,
-                      style: TextStyle(fontSize: buttonFontSize),
-                      textAlign: TextAlign.center,
-                    ),
+                      return Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                                color: const Color.fromARGB(255, 6, 0, 0)
+                                    .withValues(alpha: 3),
+                                spreadRadius: 1,
+                                blurRadius: 3,
+                                offset: const Offset(2, 2)),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            onOptionSelected(option);
+                            if (isCorrect) {
+                              playCorrectSound();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: buttonColor,
+                            padding: EdgeInsets.symmetric(
+                                vertical: buttonPaddingVertical),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            option.name,
+                            style: TextStyle(fontSize: buttonFontSize),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
           ),
           if (isCorrect || isWrong)
             CorrectWrongMessage(

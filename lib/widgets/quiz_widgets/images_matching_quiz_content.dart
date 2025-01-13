@@ -46,7 +46,15 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
           await audioPlayer.play(BytesSource(audioBytes));
         } catch (e) {
           debugPrint('Error playing audio: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
+          );
         }
+      } else {
+        debugPrint('Audio bytes are null for this noun.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
+        );
       }
     }
 
@@ -136,7 +144,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
                   ),
                   SizedBox(width: screenWidth * 0.01),
                   Text(
-                    currentNoun?.name ?? '',
+                    currentNoun?.name ?? ' ',
                     style: TextStyle(
                       fontSize: wordAreaFontSize,
                       fontWeight: FontWeight.bold,
@@ -150,61 +158,81 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
           SizedBox(height: optionSpacing),
           IgnorePointer(
             ignoring: isInteractionDisabled,
-            child: GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              childAspectRatio: 1.3,
-              crossAxisSpacing: optionSpacing,
-              mainAxisSpacing: optionSpacing,
-              children: answerOptions.map((option) {
-                final isCorrectOption = option.id == currentNoun?.id;
-                final isAnswered = isCorrect || isWrong;
-                Color? borderColor;
-                if (isAnswered) {
-                  borderColor = isCorrectOption
-                      ? AppConstants.correctColor
-                      : AppConstants.wrongColor;
-                }
-                return GestureDetector(
-                  onTap: () {
-                    onOptionSelected(option);
-                    if (isCorrect) {
-                      playCorrectSound();
-                    } else if (isWrong) {
-                      playWrongSound();
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(borderRadius),
-                      border: Border.all(
-                        color: borderColor ?? Colors.transparent, // لون الحدود
-                        width: 2.0, // سمك الحدود
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.8),
-                          spreadRadius: 0,
-                          blurRadius: imageShadowBlurRadius,
-                          offset: Offset(imageShadowOffset,
-                              imageShadowOffset), // ظل من اليسار والأسفل
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(borderRadius),
-                      child: option.image != null
-                          ? Image.memory(
-                              option.image!,
+            child: answerOptions.isEmpty
+                ? const Center(child: Text('لا توجد خيارات إجابة.'))
+                : GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.3,
+                    crossAxisSpacing: optionSpacing,
+                    mainAxisSpacing: optionSpacing,
+                    children: answerOptions.map((option) {
+                      final isCorrectOption = option.id == currentNoun?.id;
+                      final isAnswered = isCorrect || isWrong;
+                      Color? borderColor;
+                      Widget imageWidget;
+
+                      if (option.image != null) {
+                        imageWidget = Image.memory(
+                          option.image!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            debugPrint(
+                                'Error loading image for ${option.name}: $error');
+                            return Image.asset(
+                              'assets/images/placeholder_image.png', // مسار الصورة البديلة
                               fit: BoxFit.cover,
-                            )
-                          : const Icon(Icons.image_not_supported, size: 50),
-                    ),
+                            );
+                          },
+                        );
+                      } else {
+                        imageWidget = Image.asset(
+                          'assets/images/placeholder_image.png', // مسار الصورة البديلة
+                          fit: BoxFit.cover,
+                        );
+                        debugPrint('Image data is null for ${option.name}');
+                      }
+
+                      if (isAnswered) {
+                        borderColor = isCorrectOption
+                            ? AppConstants.correctColor
+                            : AppConstants.wrongColor;
+                      }
+                      return GestureDetector(
+                        onTap: () {
+                          onOptionSelected(option);
+                          if (isCorrect) {
+                            playCorrectSound();
+                          } else if (isWrong) {
+                            playWrongSound();
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(borderRadius),
+                            border: Border.all(
+                              color: borderColor ?? Colors.transparent,
+                              width: 2.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.8),
+                                spreadRadius: 0,
+                                blurRadius: imageShadowBlurRadius,
+                                offset: Offset(
+                                    imageShadowOffset, imageShadowOffset),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(borderRadius),
+                            child: imageWidget,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
           ),
           if (isCorrect || isWrong)
             CorrectWrongMessage(

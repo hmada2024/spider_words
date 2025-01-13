@@ -40,6 +40,11 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   }
 
   void _startNewQuiz() {
+    if (initialNouns.isEmpty) {
+      debugPrint('ImagesMatchingQuizLogic: initialNouns is empty.');
+      // يمكنك هنا معالجة هذا السيناريو، مثل عرض رسالة خطأ أو منع بدء الاختبار.
+      return;
+    }
     _nouns = List<Noun>.from(initialNouns)..shuffle();
     _totalQuestions = initialNouns.length;
     _nextQuestion();
@@ -50,9 +55,15 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
       _isCorrect = false;
       _isWrong = false;
       _isInteractionDisabled = false;
-      _currentNoun = _nouns.removeAt(0);
-      _imageOptions = _generateImageOptions(_currentNoun!);
-      _imageOptions.shuffle();
+      try {
+        _currentNoun = _nouns.removeAt(0);
+        _imageOptions = _generateImageOptions(_currentNoun!);
+        _imageOptions.shuffle();
+      } catch (e) {
+        debugPrint('Error in _nextQuestion: $e');
+        // يمكنك هنا معالجة الخطأ، مثل إعادة تعيين الاختبار أو عرض رسالة خطأ.
+        return;
+      }
       notifyListeners();
     } else {
       // Game Over - سيتم التعامل معها في واجهة المستخدم
@@ -76,9 +87,15 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
       }
     }
     while (options.length < 4 && initialNouns.isNotEmpty) {
-      final randomNoun = initialNouns[Random().nextInt(initialNouns.length)];
-      if (!options.any((option) => option.id == randomNoun.id)) {
-        options.add(randomNoun);
+      try {
+        final randomNoun = initialNouns[Random().nextInt(initialNouns.length)];
+        if (!options.any((option) => option.id == randomNoun.id)) {
+          options.add(randomNoun);
+        }
+      } catch (e) {
+        debugPrint('Error generating image options: $e');
+        // Handle the error, possibly by breaking the loop or returning early
+        break;
       }
     }
     return options..shuffle();
@@ -91,12 +108,16 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
       } catch (e) {
         debugPrint('Error playing audio: $e');
       }
+    } else {
+      debugPrint('Audio bytes are null.');
     }
   }
 
   Future<void> playCurrentNounAudio() async {
     if (_currentNoun?.audio != null) {
       await _playAudio(_currentNoun!.audio);
+    } else {
+      debugPrint('Current noun audio is null.');
     }
   }
 
@@ -131,6 +152,9 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   }
 
   void resetQuiz() {
+    if (initialNouns.isEmpty) {
+      return; // منع إعادة التعيين إذا لم تكن هناك بيانات أساسية
+    }
     _score = 0;
     _answeredQuestions = 0;
     _startNewQuiz(); // إعادة بدء اللعبة
@@ -138,6 +162,9 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
   }
 
   void resetQuizForCategory(String category) {
+    if (initialNouns.isEmpty) {
+      return;
+    }
     if (category == 'all') {
       _nouns = List<Noun>.from(initialNouns)..shuffle();
     } else {

@@ -30,7 +30,7 @@ class AdjectiveOppositeQuizContentState
   // دالة مساعدة لتنسيق المثال وتمييز الكلمة بين **
   Widget _formatExample(String? example, BuildContext context) {
     if (example == null) {
-      return const Text('');
+      return const Text(' ');
     }
 
     return MarkdownBody(
@@ -54,6 +54,10 @@ class AdjectiveOppositeQuizContentState
     final borderRadius = screenWidth * 0.02;
     final buttonFontSize = screenWidth * 0.045;
     final buttonPaddingVertical = screenHeight * 0.015;
+
+    if (logic.currentAdjective == null) {
+      return const Center(child: Text('لا يوجد سؤال حالي.'));
+    }
 
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.04),
@@ -94,7 +98,18 @@ class AdjectiveOppositeQuizContentState
           GestureDetector(
             onTap: logic.isInteractionDisabled
                 ? null
-                : logic.playMainAdjectiveAudio,
+                : () async {
+                    try {
+                      await logic.playMainAdjectiveAudio();
+                    } catch (e) {
+                      debugPrint(
+                          'Error playing main adjective audio: $e'); // تسجيل الخطأ
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('تعذر تشغيل الصوت لهذه الكلمة.')),
+                      );
+                    }
+                  },
             child: Container(
               padding: EdgeInsets.symmetric(
                   horizontal: screenWidth * 0.03,
@@ -110,7 +125,7 @@ class AdjectiveOppositeQuizContentState
                       size: screenWidth * 0.06, color: Colors.blue.shade800),
                   SizedBox(width: screenWidth * 0.02),
                   Text(
-                    logic.currentAdjective?.mainAdjective ?? '',
+                    logic.currentAdjective?.mainAdjective ?? ' ',
                     style: TextStyle(
                         fontSize: screenWidth * 0.06,
                         fontWeight: FontWeight.bold,
@@ -128,51 +143,55 @@ class AdjectiveOppositeQuizContentState
           // شبكة خيارات الإجابة
           IgnorePointer(
             ignoring: logic.isInteractionDisabled,
-            child: GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              childAspectRatio: 3.0,
-              crossAxisSpacing: optionSpacing,
-              mainAxisSpacing: optionSpacing,
-              children: logic.answerOptions.map((option) {
-                final isCorrectOption =
-                    option == logic.currentAdjective?.reverseAdjective;
-                final isWrongOption =
-                    option == logic.selectedAnswer && logic.isWrong;
-                final isFading = logic.isCorrect && !isCorrectOption;
+            child: logic.answerOptions.isEmpty
+                ? const Center(child: Text('لا توجد خيارات إجابة.'))
+                : GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.0,
+                    crossAxisSpacing: optionSpacing,
+                    mainAxisSpacing: optionSpacing,
+                    children: logic.answerOptions.map((option) {
+                      final isCorrectOption =
+                          option == logic.currentAdjective?.reverseAdjective;
+                      final isWrongOption =
+                          option == logic.selectedAnswer && logic.isWrong;
+                      final isFading = logic.isCorrect && !isCorrectOption;
 
-                return AnimatedOpacity(
-                  opacity: isFading ? 0.5 : 1.0,
-                  duration: const Duration(milliseconds: 500),
-                  child: GestureDetector(
-                    onTap: logic.isInteractionDisabled
-                        ? null
-                        : () => ref
-                            .read(adjectiveOppositeQuizLogicProvider)
-                            .checkAnswer(option),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
-                      decoration: BoxDecoration(
-                        color:
-                            isWrongOption ? Colors.red.shade300 : Colors.blue,
-                        borderRadius: BorderRadius.circular(borderRadius),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(vertical: buttonPaddingVertical),
-                      child: Center(
-                        child: Text(
-                          option,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: buttonFontSize, color: Colors.white),
+                      return AnimatedOpacity(
+                        opacity: isFading ? 0.5 : 1.0,
+                        duration: const Duration(milliseconds: 500),
+                        child: GestureDetector(
+                          onTap: logic.isInteractionDisabled
+                              ? null
+                              : () => ref
+                                  .read(adjectiveOppositeQuizLogicProvider)
+                                  .checkAnswer(option),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            decoration: BoxDecoration(
+                              color: isWrongOption
+                                  ? Colors.red.shade300
+                                  : Colors.blue,
+                              borderRadius: BorderRadius.circular(borderRadius),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                vertical: buttonPaddingVertical),
+                            child: Center(
+                              child: Text(
+                                option,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: buttonFontSize,
+                                    color: Colors.white),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
           ),
           // عرض مثال الإجابة الصحيحة مع حركة SlideTransition
           if (logic.isCorrect &&
