@@ -39,7 +39,7 @@ class QuizImageOption extends StatelessWidget {
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            'assets/images/placeholder_image.png',
+            'assets/images/placeholder_image.jpg',
             fit: BoxFit.cover,
           );
         },
