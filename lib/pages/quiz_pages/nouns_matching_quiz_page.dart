@@ -69,15 +69,14 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
                 content: const Text('سيتم فقدان تقدمك.'),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () => Navigator.of(context)
-                        .pop(false), // فقط إغلاق مربع الحوار
+                    onPressed: () => Navigator.of(context).pop(false),
                     child: const Text('لا'),
                   ),
                   TextButton(
                     onPressed: () {
                       ref.read(audioImageMatchingQuizLogicProvider).resetQuiz();
-                      Navigator.of(context).pop(); // إغلاق مربع الحوار
-                      Navigator.of(context).pop(); // الخروج من صفحة الاختبار
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     },
                     child: const Text('نعم (خروج)'),
                   ),
@@ -176,44 +175,18 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showQuizOverDialog(context, ref),
-        tooltip: 'Show Quiz Over',
+        onPressed: () {
+          ref
+              .read(audioImageMatchingQuizLogicProvider)
+              .resetQuiz(); // استدعاء دالة إعادة التشغيل
+        },
+        tooltip: 'إعادة تشغيل الاختبار',
         child: const Icon(Icons.flag),
       ),
     );
   }
 
-  void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
-    final quizLogic = ref.read(audioImageMatchingQuizLogicProvider);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('انتهى الاختبار!'),
-          content: Text(
-              'نتيجتك النهائية هي: ${quizLogic.score} من ${quizLogic.totalQuestions}'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                final currentCategory =
-                    ref.read(selectedAudioImageQuizCategoryProvider);
-                ref
-                    .read(audioImageMatchingQuizLogicProvider)
-                    .resetQuizForCategory(currentCategory);
-              },
-              child: const Text('إعادة اللعب'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('العودة إلى القائمة'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // تم حذف دالة _showQuizOverDialog واستبدالها بوظيفة إعادة التشغيل المباشرة
+
+  // قد تحتاج إلى تعديل دالة resetQuiz في NounsMatchingQuizLogic لتتضمن إيقاف الصوت
 }
