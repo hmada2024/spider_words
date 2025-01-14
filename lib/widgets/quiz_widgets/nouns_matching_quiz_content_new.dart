@@ -1,4 +1,4 @@
-// lib/widgets/quiz_widgets/images_matching_quiz_content_new.dart
+// lib/widgets/quiz_widgets/nouns_matching_quiz_content_new.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/models/nouns_model.dart';
@@ -6,10 +6,10 @@ import 'package:spider_words/utils/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/quiz_widgets/image_option.dart';
+import 'package:spider_words/widgets/quiz_widgets/text_option.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
 
-class ImagesMatchingQuizContentNew extends ConsumerWidget {
+class NounsMatchingQuizContentNew extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -21,7 +21,7 @@ class ImagesMatchingQuizContentNew extends ConsumerWidget {
   final VoidCallback playCurrentNounAudio;
   final bool isInteractionDisabled;
 
-  const ImagesMatchingQuizContentNew({
+  const NounsMatchingQuizContentNew({
     super.key,
     required this.currentNoun,
     required this.answerOptions,
@@ -82,19 +82,15 @@ class ImagesMatchingQuizContentNew extends ConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final double topInfoPadding = screenHeight * 0.015;
-    final double optionSpacing = screenWidth * 0.07;
+    final double optionSpacing = screenWidth * 0.05;
     final double correctTextSize = screenWidth * 0.05;
     final double borderRadius = screenWidth * 0.02;
-    final double wordAreaFontSize = screenWidth * 0.06;
-    final double wordAreaPaddingVertical = screenHeight * 0.01;
-    final double wordAreaPaddingHorizontal = screenWidth * 0.03;
-    final double imageShadowBlurRadius = screenWidth * 0.01;
-    final double imageShadowOffset = screenWidth * 0.005;
+    final double spaceBetweenImageAndOptions = screenHeight * 0.06;
 
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.03),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(bottom: topInfoPadding),
@@ -125,43 +121,62 @@ class ImagesMatchingQuizContentNew extends ConsumerWidget {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: isInteractionDisabled
-                ? null
-                : () => playAudio(ref, context, currentNoun?.audio),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                borderRadius: BorderRadius.circular(borderRadius),
-              ),
-              padding: EdgeInsets.symmetric(
-                vertical: wordAreaPaddingVertical,
-                horizontal: wordAreaPaddingHorizontal,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.volume_up,
-                        size: screenWidth * 0.07, color: Colors.blue.shade800),
+          Center(
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: isInteractionDisabled
+                      ? null
+                      : () => playAudio(ref, context, currentNoun?.audio),
+                  child: Container(
+                    width: screenWidth * 0.44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: const Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      child: currentNoun?.image != null
+                          ? Image.memory(
+                              currentNoun!.image!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                debugPrint(
+                                    'Error loading image for ${currentNoun?.name}: $error');
+                                return Image.asset(
+                                    'assets/images/placeholder_image.png');
+                              },
+                            )
+                          : Image.asset('assets/images/placeholder_image.png',
+                              fit: BoxFit.contain),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.volume_up,
+                      color: Colors.blue,
+                      size: screenWidth * 0.06,
+                    ),
                     onPressed: isInteractionDisabled
                         ? null
                         : () => playAudio(ref, context, currentNoun?.audio),
                   ),
-                  SizedBox(width: screenWidth * 0.01),
-                  Text(
-                    currentNoun?.name ?? ' ',
-                    style: TextStyle(
-                      fontSize: wordAreaFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade800,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: optionSpacing),
+          SizedBox(height: spaceBetweenImageAndOptions),
           IgnorePointer(
             ignoring: isInteractionDisabled,
             child: answerOptions.isEmpty
@@ -170,30 +185,24 @@ class ImagesMatchingQuizContentNew extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    childAspectRatio: 1.3,
+                    childAspectRatio: 3.0,
                     crossAxisSpacing: optionSpacing,
                     mainAxisSpacing: optionSpacing,
                     children: answerOptions.map((option) {
                       final isCorrectOption = option.id == currentNoun?.id;
                       final isAnswered = isCorrect || isWrong;
-                      return ImageOption(
-                        // استخدام الودجت الجديد هنا
-                        imageData: option.image,
-                        onTap: isInteractionDisabled
-                            ? null
-                            : () {
-                                onOptionSelected(option);
-                                if (isCorrect) {
-                                  playCorrectSound(ref);
-                                } else if (isWrong) {
-                                  playWrongSound(ref);
-                                }
-                              },
+                      return TextOption(
+                        text: option.name,
+                        onTap: () {
+                          onOptionSelected(option);
+                          if (isCorrect) {
+                            playCorrectSound(ref);
+                          } else if (isWrong) {
+                            playWrongSound(ref);
+                          }
+                        },
                         isCorrect: isAnswered && isCorrectOption,
                         isWrong: isAnswered && !isCorrectOption,
-                        borderRadius: borderRadius,
-                        imageShadowBlurRadius: imageShadowBlurRadius,
-                        imageShadowOffset: imageShadowOffset,
                       );
                     }).toList(),
                   ),

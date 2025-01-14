@@ -1,9 +1,9 @@
-// lib/widgets/quiz_widgets/quiz_image_option.dart
+// lib/widgets/quiz_widgets/quimage_option.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/utils/app_constants.dart';
 
-class QuizImageOption extends StatelessWidget {
+class ImageOption extends StatelessWidget {
   final Uint8List? imageData;
   final VoidCallback? onTap;
   final bool isCorrect;
@@ -12,7 +12,7 @@ class QuizImageOption extends StatelessWidget {
   final double imageShadowBlurRadius;
   final double imageShadowOffset;
 
-  const QuizImageOption({
+  const ImageOption({
     super.key,
     required this.imageData,
     this.onTap,

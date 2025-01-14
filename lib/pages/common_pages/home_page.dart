@@ -1,5 +1,6 @@
 // lib/pages/common_pages/home_page.dart
 import 'package:flutter/material.dart';
+import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page_new.dart';
 import 'package:spider_words/pages/vocabulary_pages/adjectives_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/compound_words_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/nouns_page.dart';
@@ -68,7 +69,7 @@ class HomeButtons extends StatelessWidget {
         ),
         SizedBox(height: spacing),
         CustomHomeButton(
-          labelText: 'Images Matching New', // الزر الجديد
+          labelText: 'Images Matching New',
           routeName: ImagesMatchingQuizPageNew.routeName,
           color: Colors.teal.shade700,
         ),
@@ -76,6 +77,12 @@ class HomeButtons extends StatelessWidget {
         CustomHomeButton(
           labelText: 'Nouns Matching',
           routeName: NounsMatchingQuizPage.routeName,
+          color: Colors.red.shade700,
+        ),
+        SizedBox(height: spacing),
+        CustomHomeButton(
+          labelText: 'Nouns Matching New',
+          routeName: NounsMatchingQuizPageNew.routeName,
           color: Colors.red.shade700,
         ),
       ],
