@@ -1,25 +1,27 @@
 // main.dart
 import 'package:flutter/material.dart';
-import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page_new.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:spider_words/pages/vocabulary_pages/adjectives_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/compound_words_page.dart';
 import 'package:spider_words/pages/common_pages/home_page.dart';
 import 'package:spider_words/pages/vocabulary_pages/nouns_page.dart';
 import 'package:spider_words/pages/quiz_pages/images_matching_quiz_page.dart';
-import 'package:spider_words/pages/quiz_pages/images_matching_quiz_page_new.dart'; // استيراد الصفحة الجديدة
-import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page.dart';
+import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page.dart'; // استيراد الصفحة الجديدة
+import 'package:spider_words/pages/quiz_pages/images_matching_quiz_page_new.dart';
+import 'package:spider_words/pages/quiz_pages/nouns_matching_quiz_page_new.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/data/database_helper.dart';
 
+// Provider for AudioPlayer
 final audioPlayerProvider = Provider<AudioPlayer>((ref) {
   final player = AudioPlayer();
   ref.onDispose(() => player.dispose());
   return player;
 });
 
+// Provider for DatabaseHelper
 final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
   return DatabaseHelper();
 });
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const HomePage(),
+      home: const HomePage(), // Set HomePage as the initial screen
       routes: {
         HomePage.routeName: (context) => const HomePage(),
         AdjectivesPage.routeName: (context) => const AdjectivesPage(),
@@ -58,10 +60,10 @@ class MyApp extends StatelessWidget {
         CompoundWordsPage.routeName: (context) => const CompoundWordsPage(),
         ImagesMatchingQuizPage.routeName: (context) =>
             const ImagesMatchingQuizPage(),
-        ImagesMatchingQuizPageNew.routeName: (context) => // المسار الجديد
-            const ImagesMatchingQuizPageNew(),
         NounsMatchingQuizPage.routeName: (context) =>
             const NounsMatchingQuizPage(),
+        ImagesMatchingQuizPageNew.routeName: (context) =>
+            const ImagesMatchingQuizPageNew(),
         NounsMatchingQuizPageNew.routeName: (context) =>
             const NounsMatchingQuizPageNew(),
       },
