@@ -20,7 +20,6 @@ lib/
 │   │   ├── compound_words_page.dart
 │   │   └── nouns_page.dart
 │   └── quiz_pages/
-│       ├── adjective_opposite_quiz_page.dart
 │       ├── images_matching_quiz_page.dart
 │       └── nouns_matching_quiz_page.dart
 ├── providers/
@@ -39,8 +38,6 @@ lib/
 │   │   ├── custom_gradient.dart
 │   │   └── custom_home_button.dart
 │   ├── quiz_widgets/
-│   │   ├── adjective_opposite_quiz_content.dart
-│   │   ├── adjective_opposite_quiz_logic.dart
 │   │   ├── images_matching_quiz_content.dart
 │   │   ├── images_matching_quiz_logic.dart
 │   │   ├── nouns_matching_quiz_content.dart

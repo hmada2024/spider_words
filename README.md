@@ -35,7 +35,6 @@ The application follows a structured architecture, separating concerns into dist
     *   **`quiz_pages/`:** Includes pages for the interactive quizzes:
         *   `images_matching_quiz_page.dart`: Implements the image matching quiz.
         *   `nouns_matching_quiz_page.dart`: Implements the noun matching quiz.
-        *   `adjective_opposite_quiz_page.dart`: Implements the adjective opposites quiz.
 *   **`lib/providers/`:** Manages the application's state using Riverpod. It contains providers for:
     *   `adjective_provider.dart`: Provides a `FutureProvider` for fetching the list of adjectives.
     *   `compound_word_provider.dart`: Provides a `FutureProvider` for fetching the list of compound words.
@@ -57,8 +56,6 @@ The application follows a structured architecture, separating concerns into dist
         *   `nouns_matching_quiz_content.dart`: The UI content for the noun matching quiz.
         *   `nouns_matching_quiz_logic.dart`: The business logic for the noun matching quiz (using `ChangeNotifier`).
         *   `correct_wrong_message.dart`: Displays "Correct!" or "Wrong!" messages during quizzes.
-        *   `adjective_opposite_quiz_content.dart`: The UI content for the adjective opposites quiz.
-        *   `adjective_opposite_quiz_logic.dart`: The business logic for the adjective opposites quiz (using `ChangeNotifier`).
     *   **`vocabulary_widgets/`:**  Contains widgets for displaying vocabulary items:
         *   `adjective_card.dart`: Displays an interactive card for an adjective.
         *   `adjective_list.dart`:  Renders a list of `AdjectiveCard` widgets.
