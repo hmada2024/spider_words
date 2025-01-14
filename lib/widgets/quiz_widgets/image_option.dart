@@ -1,4 +1,4 @@
-// lib/widgets/quiz_widgets/quimage_option.dart
+// lib/widgets/quiz_widgets/image_option.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:spider_words/utils/app_constants.dart';
