@@ -127,22 +127,22 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
     }
   }
 
+  // التعديل: تم تقليل استدعاء notifyListeners() ليكون فقط عند الحاجة
   Future<void> checkAnswer(Noun selectedNoun) async {
     _answeredQuestions++;
     _isInteractionDisabled = true;
-    notifyListeners();
 
     if (_currentNoun != null && selectedNoun.id == _currentNoun!.id) {
       _isCorrect = true;
       _score++;
-      playSound(AppConstants.correctAnswerSound);
-      notifyListeners();
+      notifyListeners(); // يتم استدعاء notifyListeners() فقط عند الإجابة الصحيحة
+      await playSound(AppConstants.correctAnswerSound);
       await Future.delayed(const Duration(seconds: 1));
       _nextQuestion();
     } else {
       _isWrong = true;
-      playSound(AppConstants.wrongAnswerSound);
-      notifyListeners();
+      notifyListeners(); // يتم استدعاء notifyListeners() فقط عند الإجابة الخاطئة
+      await playSound(AppConstants.wrongAnswerSound);
       await Future.delayed(const Duration(milliseconds: 1600));
       _nextQuestion();
     }
