@@ -42,7 +42,6 @@ class _CompoundWordCardState extends State<CompoundWordCard>
       curve: Curves.easeOut,
     ));
 
-    // تأخير بدء الأنيميشن بناءً على index
     Future.delayed(Duration(milliseconds: widget.index * 50), () {
       if (mounted) {
         _controller.forward();
@@ -63,7 +62,6 @@ class _CompoundWordCardState extends State<CompoundWordCard>
       } catch (e) {
         debugPrint('Error playing audio: $e');
         if (mounted) {
-          // فحص إذا كان الـ Widget لا يزال mounted
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Failed to play audio: $e'),
@@ -73,7 +71,6 @@ class _CompoundWordCardState extends State<CompoundWordCard>
       }
     } else {
       if (mounted) {
-        // فحص إذا كان الـ Widget لا يزال mounted
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('No audio available.'),
@@ -107,7 +104,6 @@ class _CompoundWordCardState extends State<CompoundWordCard>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                // الكلمة المركبة
                 children: [
                   IconButton(
                     icon: Icon(Icons.volume_up,
@@ -128,11 +124,9 @@ class _CompoundWordCardState extends State<CompoundWordCard>
                   ),
                 ],
               ),
-              SizedBox(
-                  height: verticalPadding), // مسافة فاصلة بين الكلمة والمثال
+              SizedBox(height: verticalPadding),
               if (widget.compoundWord.example != null) ...[
                 Row(
-                  // مثال الكلمة المركبة
                   children: [
                     IconButton(
                       icon: Icon(Icons.volume_up,

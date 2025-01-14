@@ -226,7 +226,9 @@ class AdjectiveOppositeQuizContentState
     ).animate(CurvedAnimation(
         parent: _animationController!, curve: Curves.easeInOut));
 
-    _animationController!.forward();
+    if (mounted) {
+      _animationController!.forward();
+    }
 
     return SlideTransition(
       position: _slideAnimation!,

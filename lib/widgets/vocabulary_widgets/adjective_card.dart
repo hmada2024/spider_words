@@ -62,7 +62,6 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
       } catch (e) {
         debugPrint('Error playing audio: $e');
         if (mounted) {
-          // فحص mounted فقط
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to play audio: $e')),
           );
@@ -70,76 +69,11 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
       }
     } else {
       if (mounted) {
-        // فحص mounted فقط
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No audio available.')),
         );
       }
     }
-  }
-
-  Widget _buildTextWithPlayButton({
-    required String text,
-    required Uint8List? audioBytes,
-    required double fontSize,
-    required double iconSize,
-    required double iconSpacing,
-  }) {
-    List<TextSpan> formatText(String text) {
-      final List<TextSpan> textSpans = [];
-      final RegExp regex = RegExp(r'\*\*(.*?)\*\*');
-      int start = 0;
-      for (final match in regex.allMatches(text)) {
-        textSpans.add(
-          TextSpan(
-            text: text.substring(start, match.start),
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: fontSize,
-            ),
-          ),
-        );
-        textSpans.add(
-          TextSpan(
-            text: match.group(1),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
-              fontSize: fontSize,
-            ),
-          ),
-        );
-        start = match.end;
-      }
-      textSpans.add(
-        TextSpan(
-          text: text.substring(start),
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: fontSize,
-          ),
-        ),
-      );
-      return textSpans;
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        IconButton(
-          icon: Icon(Icons.volume_up, color: Colors.blueAccent, size: iconSize),
-          onPressed: () => _playAudio(audioBytes),
-        ),
-        SizedBox(width: iconSpacing),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              children: formatText(text),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -241,6 +175,70 @@ class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildTextWithPlayButton({
+    required String text,
+    required Uint8List? audioBytes,
+    required double fontSize,
+    required double iconSize,
+    required double iconSpacing,
+  }) {
+    List<TextSpan> formatText(String text) {
+      final List<TextSpan> textSpans = [];
+      final RegExp regex = RegExp(r'\*\*(.*?)\*\*');
+      int start = 0;
+      for (final match in regex.allMatches(text)) {
+        textSpans.add(
+          TextSpan(
+            text: text.substring(start, match.start),
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: fontSize,
+            ),
+          ),
+        );
+        textSpans.add(
+          TextSpan(
+            text: match.group(1),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent,
+              fontSize: fontSize,
+            ),
+          ),
+        );
+        start = match.end;
+      }
+      textSpans.add(
+        TextSpan(
+          text: text.substring(start),
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: fontSize,
+          ),
+        ),
+      );
+      return textSpans;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        IconButton(
+          icon: Icon(Icons.volume_up, color: Colors.blueAccent, size: iconSize),
+          onPressed: () => _playAudio(audioBytes),
+        ),
+        SizedBox(width: iconSpacing),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              children: formatText(text),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

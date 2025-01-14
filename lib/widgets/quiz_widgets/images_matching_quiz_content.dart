@@ -64,20 +64,26 @@ class _ImagesMatchingQuizContentState
   }
 
   Future<void> playCorrectSound() async {
-    try {
-      await ref
-          .read(audioPlayerProvider)
-          .play(AssetSource('sounds/correct.mp3'));
-    } catch (e) {
-      debugPrint('Error playing correct sound: $e');
+    if (mounted) {
+      try {
+        await ref
+            .read(audioPlayerProvider)
+            .play(AssetSource('sounds/correct.mp3'));
+      } catch (e) {
+        debugPrint('Error playing correct sound: $e');
+      }
     }
   }
 
   Future<void> playWrongSound() async {
-    try {
-      await ref.read(audioPlayerProvider).play(AssetSource('sounds/wrong.mp3'));
-    } catch (e) {
-      debugPrint('Error playing wrong sound: $e');
+    if (mounted) {
+      try {
+        await ref
+            .read(audioPlayerProvider)
+            .play(AssetSource('sounds/wrong.mp3'));
+      } catch (e) {
+        debugPrint('Error playing wrong sound: $e');
+      }
     }
   }
 

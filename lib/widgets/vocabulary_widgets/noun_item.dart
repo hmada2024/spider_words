@@ -61,7 +61,6 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
       } catch (e) {
         debugPrint('Error playing audio: $e');
         if (mounted) {
-          // فحص mounted فقط
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to play audio: $e')),
           );
@@ -69,7 +68,6 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
       }
     } else {
       if (mounted) {
-        // فحص mounted فقط
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No audio available.')),
         );
@@ -115,18 +113,23 @@ class _AnimatedNounCardState extends State<AnimatedNounCard>
                       fit: StackFit.passthrough,
                       children: [
                         widget.noun.image != null
-                            ? Image.memory(widget.noun.image!,
+                            ? Image.memory(
+                                widget.noun.image!,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                debugPrint('Error loading image: $error');
-                                return Image.asset(
-                                  'assets/images/image_placeholder.png', // مسار الصورة البديلة
-                                  fit: BoxFit.cover,
-                                );
-                              })
-                            : Image.asset(
-                                'assets/images/image_placeholder.png', // استخدام الصورة البديلة في حالة عدم وجود صورة
-                                fit: BoxFit.cover,
+                                  debugPrint(
+                                      'Error loading image for ${widget.noun.name}: $error');
+                                  return Icon(
+                                    Icons.image, // أيقونة صورة
+                                    size: 100, // حجم الأيقونة
+                                    color: Colors.grey, // لون الأيقونة
+                                  );
+                                },
+                              )
+                            : Icon(
+                                Icons.image, // أيقونة صورة
+                                size: 100, // حجم الأيقونة
+                                color: Colors.grey, // لون الأيقونة
                               ),
                         Positioned(
                           top: 10,
