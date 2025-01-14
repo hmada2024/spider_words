@@ -6,7 +6,7 @@ import 'package:spider_words/utils/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
-import 'package:spider_words/widgets/quiz_image_option.dart';
+import 'package:spider_words/widgets/vocabulary_widgets/quiz_image_option.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
 
 class ImagesMatchingQuizContentNew extends ConsumerWidget {
