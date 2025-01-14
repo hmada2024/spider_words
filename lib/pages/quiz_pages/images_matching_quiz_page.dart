@@ -1,4 +1,5 @@
 // lib/pages/quiz_pages/images_matching_quiz_page.dart
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
@@ -8,12 +9,10 @@ import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_logic.dart';
 import 'package:spider_words/providers/noun_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart'; // استيراد الودجت
+import 'package:spider_words/widgets/common_widgets/category_filter_widget.dart';
 
-// تعريف Provider للفئة المختارة في لعبة المطابقة
 final selectedQuizCategoryProvider = StateProvider<String>((ref) => 'all');
 
-// تعريف Provider لـ MatchingQuizLogic
 final matchingQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<ImagesMatchingQuizLogic>((ref) {
   final selectedCategory = ref.watch(selectedQuizCategoryProvider);
@@ -28,20 +27,33 @@ final matchingQuizLogicProvider =
   return ImagesMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-class ImagesMatchingQuizPage extends ConsumerWidget {
+class ImagesMatchingQuizPage extends ConsumerStatefulWidget {
   static const routeName = '/images_matching_quiz';
 
   const ImagesMatchingQuizPage({super.key});
 
-  String formatCategoryName(String category) {
-    return category
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
+  @override
+  ImagesMatchingQuizPageState createState() => ImagesMatchingQuizPageState();
+}
+
+class ImagesMatchingQuizPageState
+    extends ConsumerState<ImagesMatchingQuizPage> {
+  late AudioPlayer audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    audioPlayer = ref.read(audioPlayerProvider); // استخدام AudioPlayer المشترك
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    audioPlayer.stop(); // إيقاف الصوت
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectedCategory = ref.watch(selectedQuizCategoryProvider);
     final nounsState = ref.watch(nounsProvider);
 
@@ -49,13 +61,11 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
       appBar: CustomAppBar(
         title: 'Images Matching Quiz',
         actions: [
-          // استبدال DropdownButton بـ CategoryFilterDropdown
           Consumer(
             builder: (context, ref, _) {
               final nounsAsyncValue = ref.watch(nounsProvider);
               return nounsAsyncValue.when(
-                loading: () =>
-                    const SizedBox.shrink(), // لا نعرض شيء أثناء التحميل هنا
+                loading: () => const SizedBox.shrink(),
                 error: (error, stackTrace) =>
                     Text('Error loading categories: $error'),
                 data: (nouns) {
@@ -136,8 +146,6 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
     );
   }
 
-  // تم حذف _buildCategoryDropdown هنا
-
   void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
     final quizLogic = ref.read(matchingQuizLogicProvider);
     showDialog(
@@ -146,8 +154,7 @@ class ImagesMatchingQuizPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Quiz Over!'),
           content: Text(
-            'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
-          ),
+              'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}'),
           actions: <Widget>[
             TextButton(
               onPressed: () {

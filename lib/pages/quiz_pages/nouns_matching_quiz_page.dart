@@ -1,4 +1,5 @@
 // lib/pages/quiz_pages/nouns_matching_quiz_page.dart
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
@@ -27,20 +28,32 @@ final audioImageMatchingQuizLogicProvider =
   return NounsMatchingQuizLogic(initialNouns: nouns, audioPlayer: audioPlayer);
 });
 
-class NounsMatchingQuizPage extends ConsumerWidget {
+class NounsMatchingQuizPage extends ConsumerStatefulWidget {
   static const routeName = '/nouns_matching_quiz';
 
   const NounsMatchingQuizPage({super.key});
 
-  String formatCategoryName(String category) {
-    return category
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
+  @override
+  NounsMatchingQuizPageState createState() => NounsMatchingQuizPageState();
+}
+
+class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
+  late AudioPlayer audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    audioPlayer = ref.read(audioPlayerProvider); // استخدام AudioPlayer المشترك
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    audioPlayer.stop(); // إيقاف الصوت
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectedCategory = ref.watch(selectedAudioImageQuizCategoryProvider);
     final nounsState = ref.watch(nounsProvider);
 
@@ -152,8 +165,7 @@ class NounsMatchingQuizPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Quiz Over!'),
           content: Text(
-            'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
-          ),
+              'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}'),
           actions: <Widget>[
             TextButton(
               onPressed: () {

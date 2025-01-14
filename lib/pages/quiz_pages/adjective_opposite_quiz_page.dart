@@ -1,4 +1,5 @@
 // lib/pages/quiz_pages/adjective_opposite_quiz_page.dart
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,35 +13,49 @@ import 'package:spider_words/providers/adjective_provider.dart';
 // Provider لإنشاء وإدارة حالة اختبار متضادات الصفات
 final adjectiveOppositeQuizLogicProvider =
     ChangeNotifierProvider.autoDispose<AdjectiveOppositeQuizLogic>((ref) {
-  // قراءة قائمة الصفات من البروفايدر الآخر
   final adjectives = ref.watch(adjectivesProvider).value ?? [];
-  // قراءة مشغل الصوت
   final audioPlayer = ref.read(audioPlayerProvider);
-  // إنشاء مدير حالة الاختبار وتمرير البيانات اللازمة
   return AdjectiveOppositeQuizLogic(
       initialAdjectives: adjectives, audioPlayer: audioPlayer);
 });
 
-class AdjectiveOppositeQuizPage extends ConsumerWidget {
+class AdjectiveOppositeQuizPage extends ConsumerStatefulWidget {
   static const routeName = '/adjective_opposite_quiz';
 
   const AdjectiveOppositeQuizPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // قراءة حالة قائمة الصفات
+  AdjectiveOppositeQuizPageState createState() =>
+      AdjectiveOppositeQuizPageState();
+}
+
+class AdjectiveOppositeQuizPageState
+    extends ConsumerState<AdjectiveOppositeQuizPage> {
+  late AudioPlayer audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    audioPlayer = ref.read(audioPlayerProvider); // استخدام AudioPlayer المشترك
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.stop(); // إيقاف الصوت
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final adjectivesState = ref.watch(adjectivesProvider);
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Adjective Opposites Quiz'),
-      // استخدام CustomGradient للخلفية
       body: CustomGradient(
-        // التعامل مع حالات تحميل البيانات، الخطأ، والنجاح
         child: adjectivesState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(child: Text('Error: $error')),
           data: (adjectives) {
-            // تحديث العدد الكلي للأسئلة بعد تحميل البيانات
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final quizLogic = ref.read(adjectiveOppositeQuizLogicProvider);
               if (listEquals(quizLogic.initialAdjectives, adjectives) ==
@@ -49,7 +64,7 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
                     adjectives;
                 ref
                     .read(adjectiveOppositeQuizLogicProvider)
-                    .resetQuizForCategory('all'); // Reset with new data
+                    .resetQuizForCategory('all');
               }
               if (quizLogic.totalQuestions != adjectives.length) {
                 ref
@@ -57,12 +72,10 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
                     .setTotalQuestions(adjectives.length);
               }
             });
-            // عرض محتوى الاختبار
             return const AdjectiveOppositeQuizContent();
           },
         ),
       ),
-      // زر لإنهاء الاختبار وعرض النتيجة
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showQuizOverDialog(context, ref),
         tooltip: 'Show Quiz Over',
@@ -71,7 +84,6 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
     );
   }
 
-  // دالة لعرض مربع حوار عند انتهاء الاختبار
   void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
     final quizLogic = ref.read(adjectiveOppositeQuizLogicProvider);
     showDialog(
@@ -80,13 +92,11 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Quiz Over!'),
           content: Text(
-            'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}',
-          ),
+              'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // إعادة تعيين الاختبار عند الضغط على "Play Again"
                 ref.read(adjectiveOppositeQuizLogicProvider).resetQuiz();
               },
               child: const Text('Play Again'),
@@ -94,7 +104,7 @@ class AdjectiveOppositeQuizPage extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // الرجوع إلى الصفحة السابقة
+                Navigator.of(context).pop();
               },
               child: const Text('Back to Menu'),
             ),
