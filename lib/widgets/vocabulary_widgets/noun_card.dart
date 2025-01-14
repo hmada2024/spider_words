@@ -1,15 +1,15 @@
-// lib/widgets/noun_item.dart
+// lib/widgets/noun_card.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/models/nouns_model.dart';
 
-class AnimatedNounCard extends StatefulWidget {
+class NounCard extends StatefulWidget {
   final Noun noun;
   final AudioPlayer audioPlayer;
   final int index;
 
-  const AnimatedNounCard({
+  const NounCard({
     super.key,
     required this.noun,
     required this.audioPlayer,
@@ -17,10 +17,10 @@ class AnimatedNounCard extends StatefulWidget {
   });
 
   @override
-  State<AnimatedNounCard> createState() => _AnimatedNounCardState();
+  State<NounCard> createState() => _NounCardState();
 }
 
-class _AnimatedNounCardState extends State<AnimatedNounCard>
+class _NounCardState extends State<NounCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;

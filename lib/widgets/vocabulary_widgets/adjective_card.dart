@@ -5,12 +5,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/models/adjective_model.dart';
 import 'dart:math';
 
-class AnimatedAdjectiveCard extends StatefulWidget {
+class AdjectiveCard extends StatefulWidget {
   final Adjective adjective;
   final AudioPlayer audioPlayer;
   final int index;
 
-  const AnimatedAdjectiveCard({
+  const AdjectiveCard({
     super.key,
     required this.adjective,
     required this.audioPlayer,
@@ -18,10 +18,10 @@ class AnimatedAdjectiveCard extends StatefulWidget {
   });
 
   @override
-  State<AnimatedAdjectiveCard> createState() => _AnimatedAdjectiveCardState();
+  State<AdjectiveCard> createState() => _AdjectiveCardState();
 }
 
-class _AnimatedAdjectiveCardState extends State<AnimatedAdjectiveCard>
+class _AdjectiveCardState extends State<AdjectiveCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;

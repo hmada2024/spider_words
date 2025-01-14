@@ -34,7 +34,7 @@ class AdjectiveList extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final adjective = snapshot.data![index];
-                  return AnimatedAdjectiveCard(
+                  return AdjectiveCard(
                     adjective: adjective,
                     audioPlayer: audioPlayer,
                     index: index,
