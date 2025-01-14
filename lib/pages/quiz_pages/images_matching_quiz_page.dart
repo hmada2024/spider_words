@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spider_words/widgets/common_widgets/custom_app_bar.dart';
 import 'package:spider_words/widgets/common_widgets/custom_gradient.dart';
-import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_content.dart';
+import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_content.dart'; // تأكد من استيراد الويدجت
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/images_matching_quiz_logic.dart';
 import 'package:spider_words/providers/noun_provider.dart';
@@ -60,32 +60,29 @@ class ImagesMatchingQuizPageState
       appBar: CustomAppBar(
         title: 'Images Matching Quiz',
         leading: IconButton(
-          // The "Exit Quiz" button
           icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final shouldPop = await showDialog<bool>(
+          onPressed: () {
+            showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Are you sure you want to exit?'),
-                content: const Text('Your progress will be lost.'),
+                title: const Text('هل أنت متأكد أنك تريد الخروج؟'),
+                content: const Text('سيتم فقدان تقدمك.'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('No'),
+                    child: const Text('لا'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Yes (Exit)'),
+                    onPressed: () {
+                      ref.read(matchingQuizLogicProvider).resetQuiz();
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('نعم (خروج)'),
                   ),
                 ],
               ),
             );
-            if (shouldPop == true) {
-              ref.read(matchingQuizLogicProvider).resetQuiz();
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
-            }
           },
         ),
         actions: [
@@ -147,6 +144,7 @@ class ImagesMatchingQuizPageState
             });
 
             return ImagesMatchingQuizContent(
+              // هنا يتم استخدام الويدجت بشكل صحيح
               currentNoun: ref.watch(matchingQuizLogicProvider).currentNoun,
               answerOptions: ref.watch(matchingQuizLogicProvider).imageOptions,
               isCorrect: ref.watch(matchingQuizLogicProvider).isCorrect,
@@ -167,43 +165,12 @@ class ImagesMatchingQuizPageState
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showQuizOverDialog(context, ref),
-        tooltip: 'Show Quiz Over',
+        onPressed: () {
+          ref.read(matchingQuizLogicProvider).resetQuiz();
+        },
+        tooltip: 'إعادة تشغيل الاختبار',
         child: const Icon(Icons.flag),
       ),
-    );
-  }
-
-  void _showQuizOverDialog(BuildContext context, WidgetRef ref) {
-    final quizLogic = ref.read(matchingQuizLogicProvider);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Quiz Over!'),
-          content: Text(
-              'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                final currentCategory = ref.read(selectedQuizCategoryProvider);
-                ref
-                    .read(matchingQuizLogicProvider)
-                    .resetQuizForCategory(currentCategory);
-              },
-              child: const Text('Play Again'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Back to Menu'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
