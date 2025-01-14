@@ -185,8 +185,4 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
       ),
     );
   }
-
-  // تم حذف دالة _showQuizOverDialog واستبدالها بوظيفة إعادة التشغيل المباشرة
-
-  // قد تحتاج إلى تعديل دالة resetQuiz في NounsMatchingQuizLogic لتتضمن إيقاف الصوت
 }
