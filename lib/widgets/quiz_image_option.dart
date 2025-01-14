@@ -46,7 +46,7 @@ class QuizImageOption extends StatelessWidget {
       );
     } else {
       imageWidget = Image.asset(
-        'assets/images/placeholder_image.png',
+        'assets/images/placeholder_image.jpg',
         fit: BoxFit.cover,
       );
     }

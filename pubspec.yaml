@@ -38,4 +38,5 @@ flutter:
     - assets/icon.ico
     - assets/sounds/wrong.mp3
     - assets/sounds/correct.mp3
+    - assets/images/placeholder_image.jpg
   uses-material-design: true
