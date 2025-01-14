@@ -61,30 +61,29 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
         title: 'Nouns Matching Quiz',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final shouldPop = await showDialog<bool>(
+          onPressed: () {
+            showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Are you sure you want to exit?'),
-                content: const Text('Your progress will be lost.'),
+                title: const Text('هل أنت متأكد أنك تريد الخروج؟'),
+                content: const Text('سيتم فقدان تقدمك.'),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('No'),
+                    onPressed: () => Navigator.of(context)
+                        .pop(false), // فقط إغلاق مربع الحوار
+                    child: const Text('لا'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Yes (Exit)'),
+                    onPressed: () {
+                      ref.read(audioImageMatchingQuizLogicProvider).resetQuiz();
+                      Navigator.of(context).pop(); // إغلاق مربع الحوار
+                      Navigator.of(context).pop(); // الخروج من صفحة الاختبار
+                    },
+                    child: const Text('نعم (خروج)'),
                   ),
                 ],
               ),
             );
-            if (shouldPop == true) {
-              ref.read(audioImageMatchingQuizLogicProvider).resetQuiz();
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
-            }
           },
         ),
         actions: [
@@ -190,9 +189,9 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Quiz Over!'),
+          title: const Text('انتهى الاختبار!'),
           content: Text(
-              'Your final score is: ${quizLogic.score} out of ${quizLogic.totalQuestions}'),
+              'نتيجتك النهائية هي: ${quizLogic.score} من ${quizLogic.totalQuestions}'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -203,14 +202,14 @@ class NounsMatchingQuizPageState extends ConsumerState<NounsMatchingQuizPage> {
                     .read(audioImageMatchingQuizLogicProvider)
                     .resetQuizForCategory(currentCategory);
               },
-              child: const Text('Play Again'),
+              child: const Text('إعادة اللعب'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
-              child: const Text('Back to Menu'),
+              child: const Text('العودة إلى القائمة'),
             ),
           ],
         );
