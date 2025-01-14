@@ -100,7 +100,7 @@ class ImagesMatchingQuizContent extends ConsumerWidget {
             child: Column(
               children: [
                 Text(
-                  'Total Questions: ${totalQuestions}',
+                  'Total Questions: $totalQuestions',
                   style: TextStyle(
                       fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold),
