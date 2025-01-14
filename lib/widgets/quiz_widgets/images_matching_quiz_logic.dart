@@ -34,6 +34,12 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
     _startNewQuiz();
   }
 
+  @override
+  void dispose() {
+    audioPlayer.stop(); // Stop the audio when the logic is disposed
+    super.dispose();
+  }
+
   void setTotalQuestions(int count) {
     _totalQuestions = count;
     notifyListeners();
@@ -65,6 +71,9 @@ class ImagesMatchingQuizLogic extends ChangeNotifier {
       notifyListeners();
     } else {
       // Game Over
+      _currentNoun = null; // Reset current noun when quiz is over
+      _imageOptions = []; // Reset image options
+      notifyListeners();
     }
   }
 

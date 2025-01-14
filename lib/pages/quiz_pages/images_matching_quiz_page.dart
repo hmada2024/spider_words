@@ -43,12 +43,11 @@ class ImagesMatchingQuizPageState
   @override
   void initState() {
     super.initState();
-    audioPlayer = ref.read(audioPlayerProvider); // استخدام AudioPlayer المشترك
+    audioPlayer = ref.read(audioPlayerProvider);
   }
 
   @override
   void dispose() {
-    audioPlayer.stop(); // إيقاف الصوت
     super.dispose();
   }
 
@@ -60,6 +59,35 @@ class ImagesMatchingQuizPageState
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Images Matching Quiz',
+        leading: IconButton(
+          // The "Exit Quiz" button
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            final shouldPop = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Are you sure you want to exit?'),
+                content: const Text('Your progress will be lost.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('No'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Yes (Exit)'),
+                  ),
+                ],
+              ),
+            );
+            if (shouldPop == true) {
+              ref.read(matchingQuizLogicProvider).resetQuiz();
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+            }
+          },
+        ),
         actions: [
           Consumer(
             builder: (context, ref, _) {

@@ -8,7 +8,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:spider_words/main.dart';
 import 'package:spider_words/widgets/quiz_widgets/correct_wrong_message.dart';
 
-class NounsMatchingQuizContent extends ConsumerStatefulWidget {
+class NounsMatchingQuizContent extends ConsumerWidget {
   final Noun? currentNoun;
   final List<Noun> answerOptions;
   final bool isCorrect;
@@ -34,20 +34,14 @@ class NounsMatchingQuizContent extends ConsumerStatefulWidget {
     required this.isInteractionDisabled,
   });
 
-  @override
-  ConsumerState<NounsMatchingQuizContent> createState() =>
-      _NounsMatchingQuizContentState();
-}
-
-class _NounsMatchingQuizContentState
-    extends ConsumerState<NounsMatchingQuizContent> {
-  Future<void> playAudio(Uint8List? audioBytes) async {
+  Future<void> playAudio(
+      WidgetRef ref, BuildContext context, Uint8List? audioBytes) async {
     if (audioBytes != null) {
       try {
         await ref.read(audioPlayerProvider).play(BytesSource(audioBytes));
       } catch (e) {
         debugPrint('Error playing audio: $e');
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('تعذر تشغيل الصوت لهذا العنصر.')),
           );
@@ -55,7 +49,7 @@ class _NounsMatchingQuizContentState
       }
     } else {
       debugPrint('Audio bytes are null for this noun.');
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('الملف الصوتي غير متوفر.')),
         );
@@ -63,20 +57,26 @@ class _NounsMatchingQuizContentState
     }
   }
 
-  Future<void> playCorrectSound() async {
-    if (mounted) {
-      try {
-        await ref
-            .read(audioPlayerProvider)
-            .play(AssetSource('sounds/correct.mp3'));
-      } catch (e) {
-        debugPrint('Error playing correct sound: $e');
-      }
+  Future<void> playCorrectSound(WidgetRef ref) async {
+    try {
+      await ref
+          .read(audioPlayerProvider)
+          .play(AssetSource('sounds/correct.mp3'));
+    } catch (e) {
+      debugPrint('Error playing correct sound: $e');
+    }
+  }
+
+  Future<void> playWrongSound(WidgetRef ref) async {
+    try {
+      await ref.read(audioPlayerProvider).play(AssetSource('sounds/wrong.mp3'));
+    } catch (e) {
+      debugPrint('Error playing wrong sound: $e');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -100,7 +100,7 @@ class _NounsMatchingQuizContentState
             child: Column(
               children: [
                 Text(
-                  'Total Questions: ${widget.totalQuestions}',
+                  'Total Questions: $totalQuestions',
                   style: TextStyle(
                       fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold),
@@ -109,14 +109,14 @@ class _NounsMatchingQuizContentState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Correct: ${widget.score}',
+                      'Correct: $score',
                       style: TextStyle(
                           fontSize: screenWidth * 0.035,
                           color: AppConstants.correctColor),
                     ),
                     SizedBox(width: optionSpacing),
                     Text(
-                      'Answered: ${widget.answeredQuestions}',
+                      'Answered: $answeredQuestions',
                       style: TextStyle(fontSize: screenWidth * 0.035),
                     ),
                   ],
@@ -128,9 +128,9 @@ class _NounsMatchingQuizContentState
             child: Stack(
               children: [
                 GestureDetector(
-                  onTap: widget.isInteractionDisabled
+                  onTap: isInteractionDisabled
                       ? null
-                      : () => playAudio(widget.currentNoun?.audio),
+                      : () => playAudio(ref, context, currentNoun?.audio),
                   child: Container(
                     width: screenWidth * 0.44,
                     decoration: BoxDecoration(
@@ -146,13 +146,13 @@ class _NounsMatchingQuizContentState
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(borderRadius),
-                      child: widget.currentNoun?.image != null
+                      child: currentNoun?.image != null
                           ? Image.memory(
-                              widget.currentNoun!.image!,
+                              currentNoun!.image!,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 debugPrint(
-                                    'Error loading image for ${widget.currentNoun?.name}: $error');
+                                    'Error loading image for ${currentNoun?.name}: $error');
                                 return Image.asset(
                                     'assets/images/placeholder_image.png');
                               },
@@ -171,9 +171,9 @@ class _NounsMatchingQuizContentState
                       color: Colors.blue,
                       size: screenWidth * 0.06,
                     ),
-                    onPressed: widget.isInteractionDisabled
+                    onPressed: isInteractionDisabled
                         ? null
-                        : () => playAudio(widget.currentNoun?.audio),
+                        : () => playAudio(ref, context, currentNoun?.audio),
                   ),
                 ),
               ],
@@ -181,8 +181,8 @@ class _NounsMatchingQuizContentState
           ),
           SizedBox(height: spaceBetweenImageAndOptions),
           IgnorePointer(
-            ignoring: widget.isInteractionDisabled,
-            child: widget.answerOptions.isEmpty
+            ignoring: isInteractionDisabled,
+            child: answerOptions.isEmpty
                 ? const Center(child: Text('لا توجد خيارات إجابة.'))
                 : GridView.count(
                     shrinkWrap: true,
@@ -191,10 +191,9 @@ class _NounsMatchingQuizContentState
                     childAspectRatio: 3.0,
                     crossAxisSpacing: optionSpacing,
                     mainAxisSpacing: optionSpacing,
-                    children: widget.answerOptions.map((option) {
-                      final isCorrectOption =
-                          option.id == widget.currentNoun?.id;
-                      final isAnswered = widget.isCorrect || widget.isWrong;
+                    children: answerOptions.map((option) {
+                      final isCorrectOption = option.id == currentNoun?.id;
+                      final isAnswered = isCorrect || isWrong;
                       Color? buttonColor = Colors.blue;
                       if (isAnswered) {
                         buttonColor = isCorrectOption
@@ -215,9 +214,11 @@ class _NounsMatchingQuizContentState
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            widget.onOptionSelected(option);
-                            if (widget.isCorrect) {
-                              playCorrectSound();
+                            onOptionSelected(option);
+                            if (isCorrect) {
+                              playCorrectSound(ref);
+                            } else if (isWrong) {
+                              playWrongSound(ref);
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -239,9 +240,9 @@ class _NounsMatchingQuizContentState
                     }).toList(),
                   ),
           ),
-          if (widget.isCorrect || widget.isWrong)
+          if (isCorrect || isWrong)
             CorrectWrongMessage(
-              isCorrect: widget.isCorrect,
+              isCorrect: isCorrect,
               correctTextSize: correctTextSize,
             ),
         ],

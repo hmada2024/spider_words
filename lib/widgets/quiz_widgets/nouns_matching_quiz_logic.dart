@@ -34,6 +34,12 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
     _startNewQuiz();
   }
 
+  @override
+  void dispose() {
+    audioPlayer.stop();
+    super.dispose();
+  }
+
   void setTotalQuestions(int count) {
     _totalQuestions = count;
     notifyListeners();
@@ -65,6 +71,9 @@ class NounsMatchingQuizLogic extends ChangeNotifier {
       notifyListeners();
     } else {
       // Game Over
+      _currentNoun = null;
+      _answerOptions = [];
+      notifyListeners();
     }
   }
 
